@@ -1,0 +1,3 @@
+[submodule "SpatialPartitioning"]
+	path = SpatialPartitioning
+	url = https://github.com/Drwalin/SpatialPartitioning.git
