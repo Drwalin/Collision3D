@@ -22,7 +22,7 @@ struct VertBox {
 
 // Origin at center of base
 struct Cyllinder {
-	float height;
+	float halfHeight;
 	float radius;
 
 	COLLISION_SHAPE_METHODS_DECLARATION()
