@@ -2,8 +2,6 @@
 // Copyright (c) 2025 Marek Zalewski aka Drwalin
 // You should have received a copy of the MIT License along with this program.
 
-#pragma once
-
 #include "../include/collision3d/CollisionShapes.hpp"
 
 namespace Collision3D
@@ -175,7 +173,8 @@ bool VertBox::CylinderTestMovement(const Transform &trans,
 
 // axis aligned box centered at the origin, with halfSize = "size" and extruded
 // by "rad"
-float RoundedBoxIntersectXZ(glm::vec2 ro, glm::vec2 rd, glm::vec2 size, float rad)
+float RoundedBoxIntersectXZ(glm::vec2 ro, glm::vec2 rd, glm::vec2 size,
+							float rad)
 {
 	// bounding box
 	glm::vec2 m = glm::vec2(1.0) / rd;
@@ -204,10 +203,10 @@ float RoundedBoxIntersectXZ(glm::vec2 ro, glm::vec2 rd, glm::vec2 size, float ra
 
 	// some precomputation
 	glm::vec2 oc = ro - size; // y -> inf
-	glm::vec2 dd = rd * rd;   // y -> 0
-	glm::vec2 oo = oc * oc;   // y -> inf
-	glm::vec2 od = oc * rd;   // y -> 0 * inf
-	float ra2 = rad * rad;    // y -> 0
+	glm::vec2 dd = rd * rd;	  // y -> 0
+	glm::vec2 oo = oc * oc;	  // y -> inf
+	glm::vec2 od = oc * rd;	  // y -> 0 * inf
+	float ra2 = rad * rad;	  // y -> 0
 
 	t = 1e20;
 
@@ -229,4 +228,89 @@ float RoundedBoxIntersectXZ(glm::vec2 ro, glm::vec2 rd, glm::vec2 size, float ra
 
 	return t;
 }
+
+// axis aligned box centered at the origin, with dimensions "size" and extruded
+// by "rad"
+float AabbBoxIntersect_RoundedXZ(glm::vec3 ro, glm::vec3 rd, glm::vec3 size,
+								 float _rad, float _height)
+{
+	const glm::vec3 rad{_rad, 0.0f, _rad};
+	size.y += _height / 2.0f;
+	ro.y += _height / 2.0f;
+
+	// bounding box
+	const glm::vec3 m = glm::vec3(1.0f) / rd;
+	const glm::vec3 n = m * ro;
+	const glm::vec3 k = glm::abs(m) * (size + rad);
+	const glm::vec3 t1 = -n - k;
+	const glm::vec3 t2 = -n + k;
+	float tN = glm::max(glm::max(t1.x, t1.y), t1.z);
+	float tF = glm::min(glm::min(t2.x, t2.y), t2.z);
+	if (tN > tF || tF < 0.0f)
+		return -1.0f;
+	float t = tN;
+
+	// convert to first octant
+	glm::vec3 pos = ro + t * rd;
+	const glm::vec3 s = glm::sign(pos);
+	ro *= s;
+	rd *= s;
+	pos *= s;
+
+	// faces
+	pos -= size;
+	pos = glm::max(pos, glm::vec3(pos.y, pos.z, pos.x));
+	if (glm::min(glm::min(pos.x, pos.y), pos.z) < 0.0f)
+		return t;
+
+	// some precomputation
+	const glm::vec3 oc = ro - size;
+	const glm::vec3 dd = rd * rd;
+	const glm::vec3 oo = oc * oc;
+	const glm::vec3 od = oc * rd;
+	float ra2 = _rad * _rad;
+
+	t = 1e20f;
+
+	// edge Y
+	{
+		const float a = dd.z + dd.x;
+		const float b = od.z + od.x;
+		const float c = oo.z + oo.x - ra2;
+		float h = b * b - a * c;
+		if (h > 0.0f) {
+			h = (-b - sqrt(h)) / a;
+			if (t > h && h > 0.0f && glm::abs(ro.y + rd.y * h) < size.y)
+				t = h;
+		}
+	}
+	
+	if (t > 1e19f)
+		t = -1.0f;
+	
+	if (t < 0.0f) {
+		t = 0.0f;
+	}
+
+	return t;
+}
+
+// normal of a rounded box
+glm::vec3 roundedboxNormal(glm::vec3 pos, glm::vec3 siz, float _rad, float _height)
+{
+	float y = 0.0f;
+	const glm::vec3 abspos = glm::abs(pos);
+	const glm::vec3 s = glm::sign(pos);
+	
+	if (abspos.y > siz.y + _height/2.0f) {
+		y = pos.y > 0.0f ? 1.0f : -1.0f;
+	}
+	
+	const glm::vec2 absposxz{abspos.x, abspos.z};
+	const glm::vec2 sizxz{siz.x, siz.z};
+	
+	
+	glm::vec3 n = s * glm::normalize(glm::max(absposxz - sizxz, glm::vec2(0.0f)));
+}
+
 } // namespace Collision3D
