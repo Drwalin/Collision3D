@@ -14,21 +14,25 @@ namespace Collision3D
 using namespace spp;
 
 // Origin at center of base
+// Can be both wall and floor
 struct VertBox {
 	glm::vec3 halfExtents;
 
+	// Collision treats cyllinder as aligned square prism to tran
 	COLLISION_SHAPE_METHODS_DECLARATION()
 };
 
 // Origin at center of base
+// Can be both wall and floor
 struct Cyllinder {
-	float halfHeight;
+	float height;
 	float radius;
 
 	COLLISION_SHAPE_METHODS_DECLARATION()
 };
 
 // Origin at center
+// Ray only
 struct Sphere {
 	float radius;
 
@@ -37,15 +41,23 @@ struct Sphere {
 
 // Origin at center of first horizontal edge
 struct Rectangle {
-	float width;
-	float height;
-	float depth;
+	float width;  // expands x
+	float height; // expands y
+	float depth;  // expands z
 
 	COLLISION_SHAPE_METHODS_DECLARATION()
 };
 
 struct Triangle {
 	glm::vec3 a, b, c;
+
+	COLLISION_SHAPE_METHODS_DECLARATION()
+};
+
+// Origin at p0
+// Normal without roatation: z=1
+struct VerticalTriangle {
+	glm::vec2 p1, p2;
 
 	COLLISION_SHAPE_METHODS_DECLARATION()
 };
@@ -61,5 +73,12 @@ template <typename T> struct Heightmap {
 	void UpdateMipMap(int x, int y);
 
 	COLLISION_SHAPE_METHODS_DECLARATION()
+};
+
+// Origin at base
+struct VerticalCappedCone {
+	float baseRadius;
+	float topRadius;
+	float height;
 };
 } // namespace Collision3D

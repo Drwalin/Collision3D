@@ -33,23 +33,23 @@ struct Transform {
 	{
 		return (rot * vec) + glm::vec2{pos.x, pos.z};
 	}
-
-	inline glm::vec3 operator / (const glm::vec3 &vec) const
+	
+	inline glm::vec3 ToLocal(const glm::vec3 &vec) const
 	{
-		return rot / (vec - pos);
+		return rot.ToLocal(vec - pos);
 	}
-
-	inline glm::vec2 operator / (const glm::vec2 &vec) const
+	
+	inline glm::vec2 ToLocal(const glm::vec2 &vec) const
 	{
-		return rot / (vec - glm::vec2{pos.x, pos.z});
+		return rot.ToLocal(vec - glm::vec2{pos.x, pos.z});
 	}
 
 	inline RayInfo ToLocal(const RayInfo &ray) const
 	{
 		RayInfo r2 = ray;
 		r2.start = ray.start - pos;
-		r2.dir = rot / ray.dir;
-		r2.dirNormalized = rot / ray.dirNormalized;
+		r2.dir = rot.ToLocal(ray.dir);
+		r2.dirNormalized = rot.ToLocal(ray.dirNormalized);
 
 		for (int i = 0; i < 3; i += 2) {
 			r2.invDir[i] = r2.dir[i] == 0.0f ? 1e18f : 1.0f / r2.dir[i];
