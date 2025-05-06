@@ -13,6 +13,8 @@ namespace Collision3D
 {
 using namespace spp;
 
+struct Cylinder;
+
 // Origin at center of base
 // Can be both wall and floor
 struct VertBox {
@@ -20,6 +22,10 @@ struct VertBox {
 
 	// Collision treats cylinder as aligned square prism to tran
 	COLLISION_SHAPE_METHODS_DECLARATION()
+	void CylinderTestOnGroundAssumeCollision2D(const Transform &trans,
+											   const Cylinder &cyl,
+											   glm::vec3 pos,
+											   float &offsetHeight);
 };
 
 // Origin at center of base
@@ -29,6 +35,10 @@ struct Cylinder {
 	float radius;
 
 	COLLISION_SHAPE_METHODS_DECLARATION()
+	void CylinderTestOnGroundAssumeCollision2D(const Transform &trans,
+											   const Cylinder &cyl,
+											   glm::vec3 pos,
+											   float &offsetHeight);
 };
 
 // Origin at center
@@ -63,17 +73,30 @@ struct VerticalTriangle {
 };
 
 // Origin at center bottom of AABB
-template <typename T> struct Heightmap {
+template <typename T> struct HeightMap {
 	glm::vec3 scale;
+	glm::vec3 invScale;
+	int width;
+	int height;
 
-	Matrix<T> points;
-	std::vector<Matrix<PairMinMax<T>>> mipmap;
+	// diagonal is between (x, y) and (x+1, y+1)
+
+	std::vector<Matrix<T>> mipmap;
 
 	void GenerateMipmap();
-	void UpdateMipMap(int x, int y);
+	void Update(int x, int y, T value);
+	T GetMax(const Matrix<T> &mat, int x, int y);
 
+	// Treting cylinder as point at it's origin
 	COLLISION_SHAPE_METHODS_DECLARATION()
 };
+extern template struct HeightMap<int8_t>;
+extern template struct HeightMap<uint8_t>;
+extern template struct HeightMap<int16_t>;
+extern template struct HeightMap<uint16_t>;
+extern template struct HeightMap<int32_t>;
+extern template struct HeightMap<uint32_t>;
+extern template struct HeightMap<float>;
 
 // Origin at base
 struct VerticalCappedCone {
