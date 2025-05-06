@@ -13,29 +13,23 @@ namespace Collision3D
 {
 using namespace spp;
 
-struct Cyllinder;
+struct Cylinder;
 } // namespace Collision3D
 
 #define COLLISION_SHAPE_METHODS_DECLARATION()                                  \
 	spp::Aabb GetAabb(const Transform &trans) const;                           \
 	bool RayTest(const Transform &trans, const RayInfo &ray, float &near,      \
 				 glm::vec3 &normal);                                           \
-	bool RayTestFast(const Transform &trans, const RayInfo &rayInverse,        \
-					 float &near, glm::vec3 &normal);                          \
+	bool RayTestLocal(const Transform &trans, const RayInfo &ray,              \
+					  const RayInfo &rayLocal, float &near,                    \
+					  glm::vec3 &normal);                                      \
 	bool CylinderTestMovement(const Transform &trans,                          \
-							  float &validMovementFactor,                      \
-							  const Cyllinder &cyl, glm::vec3 from,            \
-							  glm::vec3 to, glm::vec3 &normal);                \
-	bool CylinderTestMovementFast(                                             \
-		const Transform &trans, float &validMovementFactor,                    \
-		const Cyllinder &cyl, const RayInfo &movementRay, glm::vec3 &normal);  \
-	bool CylinderTestMovementFastest(                                             \
-		const Transform &trans, float &validMovementFactor,                    \
-		const Cyllinder &cyl, const RayInfo &movementRayLocal, glm::vec3 &normal);  \
-	bool CylinderTestOnGround(const Transform &trans, const Cyllinder &cyl,    \
+							  float &validMovementFactor, const Cylinder &cyl, \
+							  const RayInfo &movementRay, glm::vec3 &normal);  \
+	bool CylinderTestOnGround(const Transform &trans, const Cylinder &cyl,     \
 							  glm::vec3 pos, float &offsetHeight);             \
 	void CylinderTestOnGroundAssumeCollision2D(                                \
-		const Transform &trans, const Cyllinder &cyl, glm::vec3 pos,           \
+		const Transform &trans, const Cylinder &cyl, glm::vec3 pos,            \
 		float &offsetHeight);
 
 namespace glm

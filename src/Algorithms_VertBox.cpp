@@ -107,13 +107,14 @@ inline bool FastRayTest2(const glm::vec3 min, const glm::vec3 max,
 bool VertBox::RayTest(const Transform &trans, const RayInfo &ray, float &near,
 					  glm::vec3 &normal)
 {
-	return RayTestFast(trans, trans.ToLocal(ray), near, normal);
+	return RayTestLocal(trans, ray, trans.ToLocal(ray), near, normal);
 }
 
-bool VertBox::RayTestFast(const Transform &trans, const RayInfo &rayInverse,
-						  float &near, glm::vec3 &normal)
+bool VertBox::RayTestLocal(const Transform &trans, const RayInfo &ray,
+						   const RayInfo &rayLocal, float &near,
+						   glm::vec3 &normal)
 {
-	if (FastRayTest2(-halfExtents, halfExtents, rayInverse, near, normal)) {
+	if (FastRayTest2(-halfExtents, halfExtents, rayLocal, near, normal)) {
 		normal = trans.rot * normal;
 		return true;
 	} else {
@@ -121,7 +122,7 @@ bool VertBox::RayTestFast(const Transform &trans, const RayInfo &rayInverse,
 	}
 }
 
-bool VertBox::CylinderTestOnGround(const Transform &trans, const Cyllinder &cyl,
+bool VertBox::CylinderTestOnGround(const Transform &trans, const Cylinder &cyl,
 								   glm::vec3 pos, float &offsetHeight)
 {
 	pos = trans.ToLocal(pos);
@@ -133,7 +134,7 @@ bool VertBox::CylinderTestOnGround(const Transform &trans, const Cyllinder &cyl,
 }
 
 void VertBox::CylinderTestOnGroundAssumeCollision2D(const Transform &trans,
-													const Cyllinder &cyl,
+													const Cylinder &cyl,
 													glm::vec3 pos,
 													float &offsetHeight)
 {
@@ -142,31 +143,12 @@ void VertBox::CylinderTestOnGroundAssumeCollision2D(const Transform &trans,
 
 bool VertBox::CylinderTestMovement(const Transform &trans,
 								   float &validMovementFactor,
-								   const Cyllinder &cyl, glm::vec3 from,
-								   glm::vec3 to, glm::vec3 &normal)
+								   const Cylinder &cyl,
+								   const RayInfo &movementRay,
+								   glm::vec3 &normal)
 {
-	RayInfo movementRay(from, to);
-	return CylinderTestMovementFast(trans, validMovementFactor, cyl,
-									movementRay, normal);
-}
+	RayInfo movementRayLocal = trans.ToLocal(movementRay);
 
-bool VertBox::CylinderTestMovementFast(const Transform &trans,
-									   float &validMovementFactor,
-									   const Cyllinder &cyl,
-									   const RayInfo &movementRay,
-									   glm::vec3 &normal)
-{
-
-	return CylinderTestMovementFastest(trans, validMovementFactor, cyl,
-									   trans.ToLocal(movementRay), normal);
-}
-
-bool VertBox::CylinderTestMovementFastest(const Transform &trans,
-										  float &validMovementFactor,
-										  const Cyllinder &cyl,
-										  const RayInfo &movementRayLocal,
-										  glm::vec3 &normal)
-{
 	glm::vec3 he = halfExtents;
 	glm::vec3 min = -he;
 	glm::vec3 max = he;
