@@ -27,10 +27,7 @@ struct Cylinder;
 							  float &validMovementFactor, const Cylinder &cyl, \
 							  const RayInfo &movementRay, glm::vec3 &normal);  \
 	bool CylinderTestOnGround(const Transform &trans, const Cylinder &cyl,     \
-							  glm::vec3 pos, float &offsetHeight);             \
-	void CylinderTestOnGroundAssumeCollision2D(                                \
-		const Transform &trans, const Cylinder &cyl, glm::vec3 pos,            \
-		float &offsetHeight);
+							  glm::vec3 pos, float &offsetHeight);
 
 namespace glm
 {
