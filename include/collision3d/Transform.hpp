@@ -17,7 +17,7 @@ struct Transform {
 	glm::vec3 pos;
 	Rotation rot;
 
-// 	inline Transform inverse() const { return {-pos, rot.inverse()}; }
+	// 	inline Transform inverse() const { return {-pos, rot.inverse()}; }
 
 	inline Transform operator*(const Transform &r) const
 	{
@@ -33,12 +33,12 @@ struct Transform {
 	{
 		return (rot * vec) + glm::vec2{pos.x, pos.z};
 	}
-	
+
 	inline glm::vec3 ToLocal(const glm::vec3 &vec) const
 	{
 		return rot.ToLocal(vec - pos);
 	}
-	
+
 	inline glm::vec2 ToLocal(const glm::vec2 &vec) const
 	{
 		return rot.ToLocal(vec - glm::vec2{pos.x, pos.z});

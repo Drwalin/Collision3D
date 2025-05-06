@@ -21,5 +21,9 @@ Collision Shapes:
   - height map
   - vertical capped cone
   - triangle vertical wall
-  
+
+
+Mostly implemented using bulletphysics algorithms and:
+https://iquilezles.org/articles/intersectors/
+
 

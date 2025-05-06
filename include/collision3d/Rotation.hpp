@@ -34,7 +34,7 @@ struct Rotation {
 	inline glm::vec2 ToLocal(const glm::vec2 &v) const
 	{
 		assert(value < 240);
-		const Rotation inv{(uint8_t)(240u-value)};
+		const Rotation inv{(uint8_t)(240u - value)};
 		glm::vec2 rot = inv.GetVec2();
 		return glm::vec2{rot.x * v.x - rot.y * v.y, rot.y * v.x + rot.x * v.y};
 	}
@@ -42,7 +42,7 @@ struct Rotation {
 	inline glm::vec3 ToLocal(glm::vec3 v) const
 	{
 		assert(value < 240);
-		const Rotation inv{(uint8_t)(240u-value)};
+		const Rotation inv{(uint8_t)(240u - value)};
 		glm::vec2 rot = inv.GetVec2();
 		return glm::vec3{rot.x * v.x + rot.y * v.z, v.y,
 						 -rot.y * v.x + rot.x * v.z};

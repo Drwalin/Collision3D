@@ -18,13 +18,13 @@ using namespace spp;
 struct VertBox {
 	glm::vec3 halfExtents;
 
-	// Collision treats cyllinder as aligned square prism to tran
+	// Collision treats cylinder as aligned square prism to tran
 	COLLISION_SHAPE_METHODS_DECLARATION()
 };
 
 // Origin at center of base
 // Can be both wall and floor
-struct Cyllinder {
+struct Cylinder {
 	float height;
 	float radius;
 
