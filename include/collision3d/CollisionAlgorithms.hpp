@@ -8,6 +8,7 @@
 #include "../../SpatialPartitioning/include/spatial_partitioning/Aabb.hpp"
 
 #include "Transform.hpp"
+#include "MathUtil.hpp"
 
 namespace Collision3D
 {
@@ -29,18 +30,3 @@ struct Cylinder;
 	bool CylinderTestOnGround(const Transform &trans, const Cylinder &cyl,     \
 							  glm::vec3 pos, float &offsetHeight);
 
-namespace glm
-{
-inline float maxcomp(const glm::vec2 &v) { return glm::max(v.x, v.y); }
-inline float mincomp(const glm::vec2 &v) { return glm::min(v.x, v.y); }
-inline float maxcomp(const glm::vec3 &v)
-{
-	return glm::max(v.x, glm::max(v.y, v.z));
-}
-inline float mincomp(const glm::vec3 &v)
-{
-	return glm::min(v.x, glm::min(v.y, v.z));
-}
-inline float length2(const glm::vec3 &v) { return glm::dot(v, v); }
-inline float length2(const glm::vec2 &v) { return glm::dot(v, v); }
-} // namespace glm

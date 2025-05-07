@@ -11,10 +11,6 @@
 
 namespace Collision3D
 {
-using namespace spp;
-
-struct Cylinder;
-
 // Origin at center of base
 // Can be both wall and floor
 struct VertBox {
@@ -74,10 +70,16 @@ struct VerticalTriangle {
 
 // Origin at center bottom of AABB
 template <typename T> struct HeightMap {
-	glm::vec3 scale;
-	glm::vec3 invScale;
+	glm::vec3 size;
+	glm::vec3 halfSize;
+	glm::vec3 scale;	// .x === .z
+	glm::vec3 invScale; // 1 / scale
 	int width;
 	int height;
+
+	// should mean > 46 degree
+	T maxDh1;
+	T maxDh11;
 
 	// diagonal is between (x, y) and (x+1, y+1)
 
@@ -86,6 +88,11 @@ template <typename T> struct HeightMap {
 	void GenerateMipmap();
 	void Update(int x, int y, T value);
 	T GetMax(const Matrix<T> &mat, int x, int y);
+
+	template <bool TOP_ELSE_DOWN>
+	bool TriangleRayTest(const glm::vec3 &scale, T h00, T hxy, T h11, int x,
+						 int z, const RayInfo &localRay, float &near,
+						 glm::vec3 &localNormalUnnormalised);
 
 	// Treting cylinder as point at it's origin
 	COLLISION_SHAPE_METHODS_DECLARATION()
