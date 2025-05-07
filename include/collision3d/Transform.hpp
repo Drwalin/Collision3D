@@ -5,7 +5,7 @@
 #pragma once
 
 #include "../../thirdparty/glm/glm/ext/vector_float3.hpp"
-#include "../../include/spatial_partitioning/RayInfo.hpp"
+#include "../../SpatialPartitioning/include/spatial_partitioning/RayInfo.hpp"
 
 #include "Rotation.hpp"
 

@@ -9,9 +9,60 @@ namespace Collision3D
 using namespace spp;
 
 template <typename T>
+template <bool TOP_ELSE_DOWN>
+bool HeightMap<T>::TriangleRayTest(const glm::vec3 &scale, T h00, T hxy, T h11,
+								   int x, int z, const RayInfo &localRay,
+								   float &near,
+								   glm::vec3 &localNormalUnnormalised)
+{
+	assert(x >= 0 || z >= 0 || x + 1 < width || z + 1 < height);
+	const glm::vec3 v0{x, h00, z};
+	const glm::vec3 v1 =
+		TOP_ELSE_DOWN ? glm::vec3{x, hxy, z + 1} : glm::vec3{x + 1, hxy, z};
+	const glm::vec3 v2{x + 1, h11, z + 1};
+	const glm::vec3 rov0 = localRay.start - v0;
+
+	// v2 - v0
+	const glm::vec3 v1v0 = v1 - v0;
+	const glm::vec3 v2v0{1, h11 - h00, 1};
+
+	// glm::cross(v1v0, v2v0)
+	const glm::vec3 n = {
+		v1v0.y - v1v0.z * v2v0.y, //
+		v1v0.z - v1v0.x,		  //
+		v1v0.x * v2v0.y - v1v0.y  //
+	};
+	
+	assert(glm::length(n - glm::cross(v1v0, v2v0)) < 0.000000001);
+
+	const float d = 1.0f / glm::dot(localRay.dir, n);
+	const float t = d * glm::dot(-n, rov0);
+
+	const glm::vec3 hp = localRay.start + localRay.dir * t;
+
+	if constexpr (TOP_ELSE_DOWN) {
+		if (hp.x < 0.0f || 1.0f < hp.z || (hp.x - hp.z) > 0.0f) {
+			return false;
+		}
+	} else {
+		if (hp.z < 0.0f || 1.0f < hp.x || (hp.z - hp.x) > 0.0f) {
+			return false;
+		}
+	}
+
+	if (t < 0.0f || t > 1.0f) {
+		return false;
+	}
+
+	near = t;
+	localNormalUnnormalised = n;
+	return true;
+}
+
+template <typename T>
 spp::Aabb HeightMap<T>::GetAabb(const Transform &trans) const
 {
-	assert(!"unimplemented");
+	return VertBox{halfSize}.GetAabb(trans);
 }
 
 template <typename T>
@@ -34,7 +85,6 @@ bool HeightMap<T>::CylinderTestOnGround(const Transform &trans,
 										const Cylinder &cyl, glm::vec3 pos,
 										float &offsetHeight)
 {
-
 	pos = trans.ToLocal(pos) * invScale;
 	int x = pos.x;
 	int y = pos.y;
@@ -43,29 +93,51 @@ bool HeightMap<T>::CylinderTestOnGround(const Transform &trans,
 	if (x >= 0 || y >= 0 || x + 1 < width || y + 1 < height) {
 		return false;
 	}
-	
-	if (normal > 46 degree) {
+
+	T a00 = mipmap[0][x, y];
+	T a11 = mipmap[0][x + 1, y + 1];
+
+	if (glm::abs(a00 - a11) > maxDh11) {
 		return false;
 	}
-
-	float a00 = mipmap[0][x, y];
-	float a11 = mipmap[0][x + 1, y + 1];
 
 	float hdiag = a00 * (1.0f - fracy) + a11 * fracy;
 
 	if (fracy > fracx) { // upper triangle
-		float f = fracx / fracy;
 		float a01 = mipmap[0][x, y + 1];
+		float f = fracx / fracy;
+
+		if (glm::abs(a00 - a01) > maxDh1 || glm::abs(a11 - a01) > maxDh1) {
+			return false;
+		}
+
 		float hy = a00 * (1.0f - fracy) + a01 * fracy;
 		float h = hy * (1.0f - f) + hdiag * f;
-		
-		// TODO:
-		assert(!"unimplemented");
+
+		offsetHeight = trans.pos.y - h;
+		return true;
 	} else { // lower triangle
+		float f = (fracx - fracy) / (1.0f - fracy);
 		float a10 = mipmap[0][x + 1, y];
-		
-		// TODO:
-		assert(!"unimplemented");
+
+		if (glm::abs(a00 - a10) > maxDh1 || glm::abs(a11 - a10) > maxDh1) {
+			return false;
+		}
+
+		if (fracx == 0.0f) {
+			offsetHeight = trans.pos.y - a00;
+			return true;
+		}
+
+		float hy = a10 * (1.0f - fracy) + a11 * fracy;
+		float h = hy * f + hdiag * (1.0f - f);
+
+		if (glm::abs(a00 - a10) > maxDh1 || glm::abs(a11 - a10) > maxDh1) {
+			return false;
+		}
+
+		offsetHeight = trans.pos.y - h;
+		return true;
 	}
 }
 
