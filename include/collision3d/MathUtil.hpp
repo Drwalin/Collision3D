@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "../../thirdparty/glm/glm/ext/vector_float3.hpp"
-#include "../../thirdparty/glm/glm/ext/vector_float2.hpp"
-#include "../../thirdparty/glm/glm/geometric.hpp"
+#include "../../SpatialPartitioning/glm/glm/ext/vector_float3.hpp"
+#include "../../SpatialPartitioning/glm/glm/ext/vector_float2.hpp"
+#include "../../SpatialPartitioning/glm/glm/geometric.hpp"
 
 namespace glm
 {

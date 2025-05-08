@@ -25,6 +25,3 @@ add_library(collision3d STATIC
 	${source_files}
 )
 target_link_libraries(collision3d PUBLIC spatial_partitioning)
-
-add_executable(test1 tests/Test1.cpp)
-target_link_libraries(test1 collision3d)
