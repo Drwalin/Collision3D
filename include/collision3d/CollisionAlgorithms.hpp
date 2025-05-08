@@ -20,13 +20,13 @@ struct Cylinder;
 #define COLLISION_SHAPE_METHODS_DECLARATION()                                  \
 	spp::Aabb GetAabb(const Transform &trans) const;                           \
 	bool RayTest(const Transform &trans, const RayInfo &ray, float &near,      \
-				 glm::vec3 &normal);                                           \
+				 glm::vec3 &normal) const;                                     \
 	bool RayTestLocal(const Transform &trans, const RayInfo &ray,              \
-					  const RayInfo &rayLocal, float &near,                    \
-					  glm::vec3 &normal);                                      \
+					  const RayInfo &rayLocal, float &near, glm::vec3 &normal) \
+		const;                                                                 \
 	bool CylinderTestMovement(const Transform &trans,                          \
 							  float &validMovementFactor, const Cylinder &cyl, \
-							  const RayInfo &movementRay, glm::vec3 &normal);  \
+							  const RayInfo &movementRay, glm::vec3 &normal)   \
+		const;                                                                 \
 	bool CylinderTestOnGround(const Transform &trans, const Cylinder &cyl,     \
-							  glm::vec3 pos, float &offsetHeight);
-
+							  glm::vec3 pos, float &offsetHeight) const;

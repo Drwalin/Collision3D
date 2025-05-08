@@ -16,7 +16,7 @@ using namespace spp;
 struct Triangle60 {
 	float edge;
 	float vertexHeight;
-	
+
 	COLLISION_SHAPE_METHODS_DECLARATION()
 };
 
@@ -27,7 +27,7 @@ struct Triangle60 {
 struct Triangle90_45 {
 	float edge;
 	float vertexHeight;
-	
+
 	COLLISION_SHAPE_METHODS_DECLARATION()
 };
 } // namespace Collision3D
