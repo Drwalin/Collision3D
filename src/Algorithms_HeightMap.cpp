@@ -10,10 +10,9 @@ using namespace spp;
 
 template <typename T>
 template <bool TOP_ELSE_DOWN>
-bool HeightMap<T>::TriangleRayTest(const glm::vec3 &scale, T h00, T hxy, T h11,
-								   int x, int z, const RayInfo &localRay,
-								   float &near,
-								   glm::vec3 &localNormalUnnormalised)
+bool HeightMap<T>::TriangleRayTest(T h00, T hxy, T h11, int x, int z,
+								   const RayInfo &localRay, float &near,
+								   glm::vec3 &localNormalUnnormalised) const
 {
 	assert(x >= 0 || z >= 0 || x + 1 < width || z + 1 < height);
 	const glm::vec3 v0{x, h00, z};
@@ -32,7 +31,7 @@ bool HeightMap<T>::TriangleRayTest(const glm::vec3 &scale, T h00, T hxy, T h11,
 		v1v0.z - v1v0.x,		  //
 		v1v0.x * v2v0.y - v1v0.y  //
 	};
-	
+
 	assert(glm::length(n - glm::cross(v1v0, v2v0)) < 0.000000001);
 
 	const float d = 1.0f / glm::dot(localRay.dir, n);
@@ -67,7 +66,7 @@ spp::Aabb HeightMap<T>::GetAabb(const Transform &trans) const
 
 template <typename T>
 bool HeightMap<T>::RayTest(const Transform &trans, const RayInfo &ray,
-						   float &near, glm::vec3 &normal)
+						   float &near, glm::vec3 &normal) const
 {
 	return RayTestLocal(trans, ray, trans.ToLocal(ray), near, normal);
 }
@@ -75,15 +74,163 @@ bool HeightMap<T>::RayTest(const Transform &trans, const RayInfo &ray,
 template <typename T>
 bool HeightMap<T>::RayTestLocal(const Transform &trans, const RayInfo &ray,
 								const RayInfo &rayLocal, float &near,
-								glm::vec3 &normal)
+								glm::vec3 &normal) const
 {
-	assert(!"unimplemented");
+	near = 1.0f;
+	const int depth = mipmap.size() - 1;
+	const glm::vec3 d = rayLocal.dir;
+
+	int xdir = d.x >= 0.0f ? 1 : -1;
+	int xstart = d.x >= 0.0f ? 0 : mipmap.back().width - 1;
+	int xend = d.x >= 0.0f ? mipmap.back().width : -1;
+	int zdir = d.z >= 0.0f ? 1 : -1;
+	int zstart = d.z >= 0.0f ? 0 : mipmap.back().height - 1;
+	int zend = d.z >= 0.0f ? mipmap.back().height : -1;
+
+#define __COL_RTLN_RQ(DX, DZ)                                                  \
+	RayTestLocalNode<false, false, DX, DZ>(rayLocal, near, normal, depth, x, z)
+	for (int x = xstart; x != xend; x += xdir) {
+		for (int z = zstart; z != zend; z += zdir) {
+			if (d.x > 0) {
+				if (d.z > 0) {
+					if (!__COL_RTLN_RQ(true, true))
+						return false;
+				} else {
+					if (!__COL_RTLN_RQ(true, false))
+						return false;
+				}
+			} else if (d.z > 0) {
+				if (!__COL_RTLN_RQ(false, true))
+					return false;
+			} else {
+				if (!__COL_RTLN_RQ(false, false))
+					return false;
+			}
+		}
+	}
+#undef __COL_RTLN_RQ
+	normal = trans * glm::normalize(normal);
+	return true;
+}
+
+template <typename T>
+template <bool SAFE_X, bool SAFE_Z, bool SIGN_DIR_X, bool SIGN_DIR_Z>
+bool HeightMap<T>::RayTestLocalNode(const RayInfo &rayLocal, float &near,
+									glm::vec3 &normal, int depth, int x,
+									int z) const
+{
+	assert(depth >= 0);
+	assert(depth < mipmap.size());
+	assert(x >= 0);
+	assert(z >= 0);
+	if constexpr (SAFE_X) {
+		assert(x + 1 < mipmap[depth].width);
+	}
+	if constexpr (SAFE_Z) {
+		assert(z + 1 < mipmap[depth].height);
+	}
+	if (depth == 0) {
+		T h00 = mipmap[0][x, z];
+		T h01 = mipmap[0][x, z + 1];
+		T h10 = mipmap[0][x + 1, z];
+		T h11 = mipmap[0][x + 1, z + 1];
+
+		bool a, b;
+		a = TriangleRayTest<false>(h00, h10, h11, x, z, rayLocal, near, normal);
+		b = TriangleRayTest<true>(h00, h01, h11, x, z, rayLocal, near, normal);
+		return a || b;
+	} else {
+		Aabb aabb{{x << depth, 0, z << depth},
+				  {(x + 1) << depth, mipmap[depth][x, z], (z + 1) << depth}};
+		float n, f;
+		if (aabb.FastRayTest2(rayLocal.start, rayLocal.invDir, n, f) == false) {
+			return false;
+		}
+		if (n > near) {
+			return false;
+		}
+		x = x << 1;
+		z = z << 1;
+		depth = depth - 1;
+#define __COL_RTLNCO(A, B)                                                     \
+	RayTestLocalNodeCallOrdered<A, B, SIGN_DIR_X, SIGN_DIR_Z>(                 \
+		rayLocal, near, normal, depth, x, z)
+		if constexpr (SAFE_X) {
+			if constexpr (SAFE_Z) {
+				return __COL_RTLNCO(1, 1);
+			} else {
+				if (z + 1 < mipmap[depth].height) {
+					return __COL_RTLNCO(1, 1);
+				} else {
+					return __COL_RTLNCO(1, 0);
+				}
+			}
+		} else if constexpr (SAFE_Z) {
+			if (x + 1 < mipmap[depth].width) {
+				return __COL_RTLNCO(1, 1);
+			} else {
+				return __COL_RTLNCO(0, 1);
+			}
+		} else {
+			if (x + 1 < mipmap[depth].width) {
+				if (z + 1 < mipmap[depth].height) {
+					return __COL_RTLNCO(1, 1);
+				} else {
+					return __COL_RTLNCO(1, 0);
+				}
+			} else {
+				if (z + 1 < mipmap[depth].height) {
+					return __COL_RTLNCO(0, 1);
+				} else {
+					return __COL_RTLNCO(0, 0);
+				}
+			}
+		}
+	}
+#undef __COL_RTLNCO
+}
+
+template <typename T>
+template <bool SAFE_X, bool SAFE_Z, bool SIGN_DIR_X, bool SIGN_DIR_Z>
+bool HeightMap<T>::RayTestLocalNodeCallOrdered(const RayInfo &rayLocal,
+											   float &near, glm::vec3 &normal,
+											   int depth, int x, int z) const
+{
+	bool res = false;
+#define __COL_RTLN(DX, DZ)                                                     \
+	RayTestLocalNode<true, true, SIGN_DIR_X, SIGN_DIR_Z>(                      \
+		rayLocal, near, normal, depth, x + DX, z + DZ)
+	if constexpr (SIGN_DIR_X) {
+		if constexpr (SIGN_DIR_Z) {
+			res |= __COL_RTLN(0, 0);
+			res |= __COL_RTLN(0, 1);
+			res |= __COL_RTLN(1, 0);
+			res |= __COL_RTLN(1, 1);
+		} else {
+			res |= __COL_RTLN(0, 1);
+			res |= __COL_RTLN(0, 0);
+			res |= __COL_RTLN(1, 1);
+			res |= __COL_RTLN(1, 0);
+		}
+	} else if constexpr (SIGN_DIR_Z) {
+		res |= __COL_RTLN(1, 0);
+		res |= __COL_RTLN(1, 1);
+		res |= __COL_RTLN(0, 0);
+		res |= __COL_RTLN(0, 1);
+	} else {
+		res |= __COL_RTLN(1, 1);
+		res |= __COL_RTLN(1, 0);
+		res |= __COL_RTLN(0, 1);
+		res |= __COL_RTLN(0, 0);
+	}
+#undef __COL_RTLN
+	return res;
 }
 
 template <typename T>
 bool HeightMap<T>::CylinderTestOnGround(const Transform &trans,
 										const Cylinder &cyl, glm::vec3 pos,
-										float &offsetHeight)
+										float &offsetHeight) const
 {
 	pos = trans.ToLocal(pos) * invScale;
 	int x = pos.x;
@@ -146,7 +293,7 @@ bool HeightMap<T>::CylinderTestMovement(const Transform &trans,
 										float &validMovementFactor,
 										const Cylinder &cyl,
 										const RayInfo &movementRay,
-										glm::vec3 &normal)
+										glm::vec3 &normal) const
 {
 	if (RayTest(trans, movementRay, validMovementFactor, normal)) {
 		return true;
@@ -175,7 +322,7 @@ template <typename T> void HeightMap<T>::GenerateMipmap()
 											  prev[X1, Y]),
 									 prev[X1, Y1]);
 					} else {
-						next[x, y] = GetMax(prev, X, Y);
+						next[x, y] = GetMax2x2(prev, X, Y);
 					}
 				}
 			}
@@ -192,13 +339,14 @@ template <typename T> void HeightMap<T>::Update(int x, int y, T value)
 		mipmap[i][x, y] = value;
 		x &= ~1;
 		y &= ~1;
-		value = GetMax(mipmap[i], x, y);
+		value = GetMax2x2(mipmap[i], x, y);
 		x >>= 1;
 		y >>= 1;
 	}
 }
 
-template <typename T> T HeightMap<T>::GetMax(const Matrix<T> &mat, int x, int y)
+template <typename T>
+T HeightMap<T>::GetMax2x2(const Matrix<T> &mat, int x, int y) const
 {
 	const int x1 = x + 1;
 	const int y1 = y + 1;

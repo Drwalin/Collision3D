@@ -51,14 +51,14 @@ bool cylIntersect(const RayInfo &ray, glm::vec3 pos, float height, float radius,
 }
 
 bool Cylinder::RayTest(const Transform &trans, const RayInfo &ray, float &near,
-					   glm::vec3 &normal)
+					   glm::vec3 &normal) const
 {
 	return cylIntersect(ray, trans.pos, height, radius, near, normal);
 }
 
 bool Cylinder::RayTestLocal(const Transform &trans, const RayInfo &ray,
 							const RayInfo &rayLocal, float &near,
-							glm::vec3 &normal)
+							glm::vec3 &normal) const
 {
 	// TODO: warn because it is slower
 	if (cylIntersect(rayLocal, trans.pos, height, radius, near, normal)) {
@@ -70,7 +70,7 @@ bool Cylinder::RayTestLocal(const Transform &trans, const RayInfo &ray,
 }
 
 bool Cylinder::CylinderTestOnGround(const Transform &trans, const Cylinder &cyl,
-									glm::vec3 pos, float &offsetHeight)
+									glm::vec3 pos, float &offsetHeight) const
 {
 	float r2 = radius + cyl.radius;
 	r2 = r2 * r2;
@@ -85,7 +85,7 @@ bool Cylinder::CylinderTestOnGround(const Transform &trans, const Cylinder &cyl,
 void Cylinder::CylinderTestOnGroundAssumeCollision2D(const Transform &trans,
 													 const Cylinder &cyl,
 													 glm::vec3 pos,
-													 float &offsetHeight)
+													 float &offsetHeight) const
 {
 	offsetHeight = pos.y - trans.pos.y - height;
 }
@@ -94,7 +94,7 @@ bool Cylinder::CylinderTestMovement(const Transform &trans,
 									float &validMovementFactor,
 									const Cylinder &cyl,
 									const RayInfo &movementRay,
-									glm::vec3 &normal)
+									glm::vec3 &normal) const
 {
 	Cylinder cyl2 = {height + cyl.height, radius + cyl.radius};
 	return cylIntersect(movementRay, trans.pos - glm::vec3(0, cyl.height, 0),

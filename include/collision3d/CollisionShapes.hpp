@@ -21,7 +21,7 @@ struct VertBox {
 	void CylinderTestOnGroundAssumeCollision2D(const Transform &trans,
 											   const Cylinder &cyl,
 											   glm::vec3 pos,
-											   float &offsetHeight);
+											   float &offsetHeight) const;
 };
 
 // Origin at center of base
@@ -34,7 +34,7 @@ struct Cylinder {
 	void CylinderTestOnGroundAssumeCollision2D(const Transform &trans,
 											   const Cylinder &cyl,
 											   glm::vec3 pos,
-											   float &offsetHeight);
+											   float &offsetHeight) const;
 };
 
 // Origin at center
@@ -87,12 +87,21 @@ template <typename T> struct HeightMap {
 
 	void GenerateMipmap();
 	void Update(int x, int y, T value);
-	T GetMax(const Matrix<T> &mat, int x, int y);
+	T GetMax2x2(const Matrix<T> &mat, int x, int y) const;
 
 	template <bool TOP_ELSE_DOWN>
-	bool TriangleRayTest(const glm::vec3 &scale, T h00, T hxy, T h11, int x,
-						 int z, const RayInfo &localRay, float &near,
-						 glm::vec3 &localNormalUnnormalised);
+	bool TriangleRayTest(T h00, T hxy, T h11, int x, int z,
+						 const RayInfo &localRay, float &near,
+						 glm::vec3 &localNormalUnnormalised) const;
+
+	template <bool SAFE_X, bool SAFE_Z, bool SIGN_DIR_X, bool SIGN_DIR_Z>
+	bool RayTestLocalNode(const RayInfo &rayLocal, float &near,
+						  glm::vec3 &localNormalUnnormalised, int depth, int x,
+						  int z) const;
+	template <bool SAFE_X, bool SAFE_Z, bool SIGN_DIR_X, bool SIGN_DIR_Z>
+	bool RayTestLocalNodeCallOrdered(const RayInfo &rayLocal, float &near,
+									 glm::vec3 &localNormalUnnormalised,
+									 int depth, int x, int z) const;
 
 	// Treting cylinder as point at it's origin
 	COLLISION_SHAPE_METHODS_DECLARATION()

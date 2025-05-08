@@ -105,14 +105,14 @@ inline bool FastRayTest2(const glm::vec3 min, const glm::vec3 max,
 }
 
 bool VertBox::RayTest(const Transform &trans, const RayInfo &ray, float &near,
-					  glm::vec3 &normal)
+					  glm::vec3 &normal) const
 {
 	return RayTestLocal(trans, ray, trans.ToLocal(ray), near, normal);
 }
 
 bool VertBox::RayTestLocal(const Transform &trans, const RayInfo &ray,
 						   const RayInfo &rayLocal, float &near,
-						   glm::vec3 &normal)
+						   glm::vec3 &normal) const
 {
 	if (FastRayTest2(-halfExtents, halfExtents, rayLocal, near, normal)) {
 		normal = trans.rot * normal;
@@ -123,7 +123,7 @@ bool VertBox::RayTestLocal(const Transform &trans, const RayInfo &ray,
 }
 
 bool VertBox::CylinderTestOnGround(const Transform &trans, const Cylinder &cyl,
-								   glm::vec3 pos, float &offsetHeight)
+								   glm::vec3 pos, float &offsetHeight) const
 {
 	pos = trans.ToLocal(pos);
 	if (pos.x > halfExtents.x || pos.z > halfExtents.y) {
@@ -136,7 +136,7 @@ bool VertBox::CylinderTestOnGround(const Transform &trans, const Cylinder &cyl,
 void VertBox::CylinderTestOnGroundAssumeCollision2D(const Transform &trans,
 													const Cylinder &cyl,
 													glm::vec3 pos,
-													float &offsetHeight)
+													float &offsetHeight) const
 {
 	offsetHeight = pos.y - trans.pos.y - halfExtents.y * 2.0f;
 }
@@ -145,7 +145,7 @@ bool VertBox::CylinderTestMovement(const Transform &trans,
 								   float &validMovementFactor,
 								   const Cylinder &cyl,
 								   const RayInfo &movementRay,
-								   glm::vec3 &normal)
+								   glm::vec3 &normal) const
 {
 	RayInfo movementRayLocal = trans.ToLocal(movementRay);
 
