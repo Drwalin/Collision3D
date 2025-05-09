@@ -8,6 +8,16 @@ namespace Collision3D
 {
 using namespace spp;
 
+template<typename T>
+void HeightMap<T>::InitValues(int width, int height, const glm::vec3 &scale,
+					const glm::vec3 &size) {
+	halfSize = size / 2.0f;
+	invScale = scale;
+	mipmap.resize(1);
+	mipmap[0].width = width;
+	mipmap[0].height = height;
+}
+
 template <typename T>
 template <bool TOP_ELSE_DOWN>
 bool HeightMap<T>::TriangleRayTest(T h00, T hxy, T h11, int x, int z,
