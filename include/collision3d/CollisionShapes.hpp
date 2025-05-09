@@ -85,6 +85,8 @@ template <typename T> struct HeightMap {
 
 	std::vector<Matrix<T>> mipmap;
 
+	void InitValues(int width, int height, const glm::vec3 &scale,
+					const glm::vec3 &size);
 	void GenerateMipmap();
 	void Update(int x, int y, T value);
 	T GetMax2x2(const Matrix<T> &mat, int x, int y) const;
