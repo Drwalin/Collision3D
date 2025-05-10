@@ -17,7 +17,10 @@ template <typename T> struct Matrix {
 	Matrix &operator=(const Matrix &other) = default;
 	Matrix() : width(-1), height(-1) {}
 
-	Matrix(int width, int height);
+	Matrix(int width, int height) : width(width), height(height)
+	{
+		heights.resize(width * height);
+	}
 
 	T &operator[](int x, int y) { return heights[y * height + x]; }
 	T operator[](int x, int y) const { return heights[y * height + x]; }
