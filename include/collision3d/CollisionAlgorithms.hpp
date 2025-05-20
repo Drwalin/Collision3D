@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "../../SpatialPartitioning/glm/glm/ext/vector_int2.hpp"
+
 #include "../../SpatialPartitioning/include/spatial_partitioning/RayInfo.hpp"
 #include "../../SpatialPartitioning/include/spatial_partitioning/Aabb.hpp"
 

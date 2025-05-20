@@ -11,7 +11,7 @@ struct Cylinder;
 struct Sphere;
 struct Rectangle;
 struct Triangle;
-template <typename T> struct HeightMap;
+template <typename T, typename MT> struct HeightMap;
 struct VerticalCappedCone;
 
 struct Rotation;

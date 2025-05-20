@@ -69,7 +69,7 @@ struct VerticalTriangle {
 };
 
 // Origin at center bottom of AABB
-template <typename T> struct HeightMap {
+template <typename T, typename MT> struct HeightMap {
 	glm::vec3 size;
 	glm::vec3 halfSize;
 	glm::vec3 scale;	// .x === .z
@@ -84,6 +84,12 @@ template <typename T> struct HeightMap {
 	// diagonal is between (x, y) and (x+1, y+1)
 
 	std::vector<Matrix<T>> mipmap;
+	Matrix<MT> material;
+	
+	glm::ivec2 GetClosestPointIfAny(glm::vec2 verticalPos);
+	
+	void InitSet(int width, int height, const glm::vec3 &scale,
+					const glm::vec3 &size, T *heights, MT *materials);
 
 	void InitValues(int width, int height, const glm::vec3 &scale,
 					const glm::vec3 &size);
@@ -108,13 +114,13 @@ template <typename T> struct HeightMap {
 	// Treting cylinder as point at it's origin
 	COLLISION_SHAPE_METHODS_DECLARATION()
 };
-extern template struct HeightMap<int8_t>;
-extern template struct HeightMap<uint8_t>;
-extern template struct HeightMap<int16_t>;
-extern template struct HeightMap<uint16_t>;
-extern template struct HeightMap<int32_t>;
-extern template struct HeightMap<uint32_t>;
-extern template struct HeightMap<float>;
+extern template struct HeightMap<int8_t, uint8_t>;
+extern template struct HeightMap<uint8_t, uint8_t>;
+extern template struct HeightMap<int16_t, uint8_t>;
+extern template struct HeightMap<uint16_t, uint8_t>;
+extern template struct HeightMap<int32_t, uint8_t>;
+extern template struct HeightMap<uint32_t, uint8_t>;
+extern template struct HeightMap<float, uint8_t>;
 
 // Origin at base
 struct VerticalCappedCone {
