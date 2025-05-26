@@ -85,11 +85,11 @@ template <typename T, typename MT> struct HeightMap {
 
 	std::vector<Matrix<T>> mipmap;
 	Matrix<MT> material;
-	
+
 	glm::ivec2 GetClosestPointIfAny(glm::vec2 verticalPos);
-	
+
 	void InitSet(int width, int height, const glm::vec3 &scale,
-					const glm::vec3 &size, T *heights, MT *materials);
+				 const glm::vec3 &size, T *heights, MT *materials);
 
 	void InitValues(int width, int height, const glm::vec3 &scale,
 					const glm::vec3 &size);
@@ -111,6 +111,16 @@ template <typename T, typename MT> struct HeightMap {
 									 glm::vec3 &localNormalUnnormalised,
 									 int depth, int x, int z) const;
 
+	HeightMap() : width(0), height(0) {}
+	
+	HeightMap(HeightMap &other) = default;
+	HeightMap(HeightMap &&other) = default;
+	HeightMap(const HeightMap &other) = default;
+
+	HeightMap &operator=(HeightMap &other) = default;
+	HeightMap &operator=(HeightMap &&other) = default;
+	HeightMap &operator=(const HeightMap &other) = default;
+	
 	// Treting cylinder as point at it's origin
 	COLLISION_SHAPE_METHODS_DECLARATION()
 };
@@ -127,5 +137,132 @@ struct VerticalCappedCone {
 	float baseRadius;
 	float topRadius;
 	float height;
+
+	COLLISION_SHAPE_METHODS_DECLARATION()
+};
+
+struct AnyPrimitive {
+	union {
+		VertBox vertBox;
+		Cylinder cylinder;
+		Sphere sphere;
+		Rectangle rectangle;
+		VerticalTriangle vertTriangle;
+		VerticalCappedCone cappedCone;
+	};
+
+	enum Type {
+		INVALID = 0,
+		VERTBOX = 1,
+		CYLINDER = 2,
+		SPHERE = 3,
+		RECTANGLE = 4,
+		VERTICAL_TRIANGLE = 5,
+		CAPPED_CONE = 6,
+	} type = INVALID;
+
+	AnyPrimitive(VertBox vertBox);
+	AnyPrimitive(Cylinder cylinder);
+	AnyPrimitive(Sphere sphere);
+	AnyPrimitive(Rectangle rectangle);
+	AnyPrimitive(VerticalTriangle vertTriangle);
+	AnyPrimitive(VerticalCappedCone cappedCone);
+
+	AnyPrimitive &operator=(VertBox vertBox);
+	AnyPrimitive &operator=(Cylinder cylinder);
+	AnyPrimitive &operator=(Sphere sphere);
+	AnyPrimitive &operator=(Rectangle rectangle);
+	AnyPrimitive &operator=(VerticalTriangle vertTriangle);
+	AnyPrimitive &operator=(VerticalCappedCone cappedCone);
+	
+	AnyPrimitive() = default;
+
+	AnyPrimitive(AnyPrimitive &other) = default;
+	AnyPrimitive(AnyPrimitive &&other) = default;
+	AnyPrimitive(const AnyPrimitive &other) = default;
+
+	AnyPrimitive &operator=(AnyPrimitive &other) = default;
+	AnyPrimitive &operator=(AnyPrimitive &&other) = default;
+	AnyPrimitive &operator=(const AnyPrimitive &other) = default;
+
+	COLLISION_SHAPE_METHODS_DECLARATION()
+};
+
+struct CompoundPrimitive {
+	struct Shape {
+		AnyPrimitive primitive;
+		Transform transform;
+	};
+
+	std::vector<Shape> shapes;
+	
+	CompoundPrimitive() = default;
+	
+	CompoundPrimitive(CompoundPrimitive &other) = default;
+	CompoundPrimitive(CompoundPrimitive &&other) = default;
+	CompoundPrimitive(const CompoundPrimitive &other) = default;
+
+	CompoundPrimitive &operator=(CompoundPrimitive &other) = default;
+	CompoundPrimitive &operator=(CompoundPrimitive &&other) = default;
+	CompoundPrimitive &operator=(const CompoundPrimitive &other) = default;
+
+	COLLISION_SHAPE_METHODS_DECLARATION()
+};
+
+struct AnyShape {
+	union {
+		VertBox vertBox;
+		Cylinder cylinder;
+		Sphere sphere;
+		Rectangle rectangle;
+		VerticalTriangle vertTriangle;
+		VerticalCappedCone cappedCone;
+		HeightMap<float, uint8_t> *heightMap;
+		CompoundPrimitive compound;
+	};
+
+	enum Type {
+		INVALID = 0,
+		VERTBOX = 1,
+		CYLINDER = 2,
+		SPHERE = 3,
+		RECTANGLE = 4,
+		VERTICAL_TRIANGLE = 5,
+		CAPPED_CONE = 6,
+		HEIGHT_MAP = 7,
+		COMPOUND = 8,
+	} type = INVALID;
+
+	AnyShape(VertBox vertBox);
+	AnyShape(Cylinder cylinder);
+	AnyShape(Sphere sphere);
+	AnyShape(Rectangle rectangle);
+	AnyShape(VerticalTriangle vertTriangle);
+	AnyShape(VerticalCappedCone cappedCone);
+	AnyShape(HeightMap<float, uint8_t> &&heightMap);
+	AnyShape(CompoundPrimitive &&compound);
+
+	AnyShape &operator=(VertBox vertBox);
+	AnyShape &operator=(Cylinder cylinder);
+	AnyShape &operator=(Sphere sphere);
+	AnyShape &operator=(Rectangle rectangle);
+	AnyShape &operator=(VerticalTriangle vertTriangle);
+	AnyShape &operator=(VerticalCappedCone cappedCone);
+	AnyShape &operator=(HeightMap<float, uint8_t> &&heightMap);
+	AnyShape &operator=(CompoundPrimitive &&compound);
+	
+	AnyShape();
+
+	AnyShape(AnyShape &other);
+	AnyShape(AnyShape &&other);
+	AnyShape(const AnyShape &other);
+
+	AnyShape &operator=(AnyShape &other);
+	AnyShape &operator=(AnyShape &&other);
+	AnyShape &operator=(const AnyShape &other);
+	
+	~AnyShape();
+
+	COLLISION_SHAPE_METHODS_DECLARATION()
 };
 } // namespace Collision3D
