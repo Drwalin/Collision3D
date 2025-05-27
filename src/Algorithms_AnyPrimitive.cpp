@@ -6,53 +6,65 @@
 
 namespace Collision3D
 {
-AnyPrimitive::AnyPrimitive(VertBox vertBox) : vertBox(vertBox), type(VERTBOX) {}
-AnyPrimitive::AnyPrimitive(Cylinder cylinder)
-	: cylinder(cylinder), type(CYLINDER)
+AnyPrimitive::AnyPrimitive(VertBox vertBox, Transform trans)
+	: vertBox(vertBox), trans(trans), type(VERTBOX)
 {
 }
-AnyPrimitive::AnyPrimitive(Sphere sphere) : sphere(sphere), type(SPHERE) {}
-AnyPrimitive::AnyPrimitive(Rectangle rectangle)
-	: rectangle(rectangle), type(RECTANGLE)
+AnyPrimitive::AnyPrimitive(Cylinder cylinder, Transform trans)
+	: cylinder(cylinder), trans(trans), type(CYLINDER)
 {
 }
-AnyPrimitive::AnyPrimitive(VerticalTriangle vertTriangle)
-	: vertTriangle(vertTriangle), type(VERTICAL_TRIANGLE)
+AnyPrimitive::AnyPrimitive(Sphere sphere, Transform trans)
+	: sphere(sphere), trans(trans), type(SPHERE)
 {
 }
-AnyPrimitive::AnyPrimitive(VerticalCappedCone cappedCone)
-	: cappedCone(cappedCone), type(CAPPED_CONE)
+AnyPrimitive::AnyPrimitive(Rectangle rectangle, Transform trans)
+	: rectangle(rectangle), trans(trans), type(RECTANGLE)
+{
+}
+AnyPrimitive::AnyPrimitive(VerticalTriangle vertTriangle, Transform trans)
+	: vertTriangle(vertTriangle), trans(trans), type(VERTICAL_TRIANGLE)
+{
+}
+AnyPrimitive::AnyPrimitive(VerticalCappedCone cappedCone, Transform trans)
+	: cappedCone(cappedCone), trans(trans), type(CAPPED_CONE)
 {
 }
 
 AnyPrimitive &AnyPrimitive::operator=(VertBox vertBox)
 {
 	new (this) AnyPrimitive(vertBox);
+	trans = {};
 	return *this;
 }
 AnyPrimitive &AnyPrimitive::operator=(Cylinder cylinder)
 {
 	new (this) AnyPrimitive(cylinder);
+	trans = {};
 	return *this;
 }
 AnyPrimitive &AnyPrimitive::operator=(Sphere sphere)
 {
 	new (this) AnyPrimitive(sphere);
+	trans = {};
 	return *this;
 }
 AnyPrimitive &AnyPrimitive::operator=(Rectangle rectangle)
 {
 	new (this) AnyPrimitive(rectangle);
+	trans = {};
 	return *this;
 }
 AnyPrimitive &AnyPrimitive::operator=(VerticalTriangle vertTriangle)
 {
 	new (this) AnyPrimitive(vertTriangle);
+	trans = {};
 	return *this;
 }
 AnyPrimitive &AnyPrimitive::operator=(VerticalCappedCone cappedCone)
 {
 	new (this) AnyPrimitive(cappedCone);
+	trans = {};
 	return *this;
 }
 
@@ -62,17 +74,17 @@ spp::Aabb AnyPrimitive::GetAabb(const Transform &trans) const
 	case INVALID:
 		return spp::AABB_INVALID;
 	case VERTBOX:
-		return vertBox.GetAabb(trans);
+		return vertBox.GetAabb(trans * this->trans);
 	case CYLINDER:
-		return cylinder.GetAabb(trans);
+		return cylinder.GetAabb(trans * this->trans);
 	case SPHERE:
-		return sphere.GetAabb(trans);
+		return sphere.GetAabb(trans * this->trans);
 	case RECTANGLE:
-		return rectangle.GetAabb(trans);
+		return rectangle.GetAabb(trans * this->trans);
 	case VERTICAL_TRIANGLE:
-		return vertTriangle.GetAabb(trans);
+		return vertTriangle.GetAabb(trans * this->trans);
 	case CAPPED_CONE:
-		return cappedCone.GetAabb(trans);
+		return cappedCone.GetAabb(trans * this->trans);
 	default:
 		return spp::AABB_INVALID;
 	}
@@ -85,17 +97,17 @@ bool AnyPrimitive::RayTest(const Transform &trans, const RayInfo &ray,
 	case INVALID:
 		return false;
 	case VERTBOX:
-		return vertBox.RayTest(trans, ray, near, normal);
+		return vertBox.RayTest(trans * this->trans, ray, near, normal);
 	case CYLINDER:
-		return cylinder.RayTest(trans, ray, near, normal);
+		return cylinder.RayTest(trans * this->trans, ray, near, normal);
 	case SPHERE:
-		return sphere.RayTest(trans, ray, near, normal);
+		return sphere.RayTest(trans * this->trans, ray, near, normal);
 	case RECTANGLE:
-		return rectangle.RayTest(trans, ray, near, normal);
+		return rectangle.RayTest(trans * this->trans, ray, near, normal);
 	case VERTICAL_TRIANGLE:
-		return vertTriangle.RayTest(trans, ray, near, normal);
+		return vertTriangle.RayTest(trans * this->trans, ray, near, normal);
 	case CAPPED_CONE:
-		return cappedCone.RayTest(trans, ray, near, normal);
+		return cappedCone.RayTest(trans * this->trans, ray, near, normal);
 	default:
 		return false;
 	}
@@ -108,17 +120,23 @@ bool AnyPrimitive::RayTestLocal(const Transform &trans, const RayInfo &ray,
 	case INVALID:
 		return false;
 	case VERTBOX:
-		return vertBox.RayTestLocal(trans, ray, rayLocal, near, normal);
+		return vertBox.RayTestLocal(trans * this->trans, ray, rayLocal, near,
+									normal);
 	case CYLINDER:
-		return cylinder.RayTestLocal(trans, ray, rayLocal, near, normal);
+		return cylinder.RayTestLocal(trans * this->trans, ray, rayLocal, near,
+									 normal);
 	case SPHERE:
-		return sphere.RayTestLocal(trans, ray, rayLocal, near, normal);
+		return sphere.RayTestLocal(trans * this->trans, ray, rayLocal, near,
+								   normal);
 	case RECTANGLE:
-		return rectangle.RayTestLocal(trans, ray, rayLocal, near, normal);
+		return rectangle.RayTestLocal(trans * this->trans, ray, rayLocal, near,
+									  normal);
 	case VERTICAL_TRIANGLE:
-		return vertTriangle.RayTestLocal(trans, ray, rayLocal, near, normal);
+		return vertTriangle.RayTestLocal(trans * this->trans, ray, rayLocal,
+										 near, normal);
 	case CAPPED_CONE:
-		return cappedCone.RayTestLocal(trans, ray, rayLocal, near, normal);
+		return cappedCone.RayTestLocal(trans * this->trans, ray, rayLocal, near,
+									   normal);
 	default:
 		return false;
 	}
@@ -132,17 +150,23 @@ bool AnyPrimitive::CylinderTestOnGround(const Transform &trans,
 	case INVALID:
 		return false;
 	case VERTBOX:
-		return vertBox.CylinderTestOnGround(trans, cyl, pos, offsetHeight);
+		return vertBox.CylinderTestOnGround(trans * this->trans, cyl, pos,
+											offsetHeight);
 	case CYLINDER:
-		return cylinder.CylinderTestOnGround(trans, cyl, pos, offsetHeight);
+		return cylinder.CylinderTestOnGround(trans * this->trans, cyl, pos,
+											 offsetHeight);
 	case SPHERE:
-		return sphere.CylinderTestOnGround(trans, cyl, pos, offsetHeight);
+		return sphere.CylinderTestOnGround(trans * this->trans, cyl, pos,
+										   offsetHeight);
 	case RECTANGLE:
-		return rectangle.CylinderTestOnGround(trans, cyl, pos, offsetHeight);
+		return rectangle.CylinderTestOnGround(trans * this->trans, cyl, pos,
+											  offsetHeight);
 	case VERTICAL_TRIANGLE:
-		return vertTriangle.CylinderTestOnGround(trans, cyl, pos, offsetHeight);
+		return vertTriangle.CylinderTestOnGround(trans * this->trans, cyl, pos,
+												 offsetHeight);
 	case CAPPED_CONE:
-		return cappedCone.CylinderTestOnGround(trans, cyl, pos, offsetHeight);
+		return cappedCone.CylinderTestOnGround(trans * this->trans, cyl, pos,
+											   offsetHeight);
 	default:
 		return false;
 	}
@@ -158,23 +182,23 @@ bool AnyPrimitive::CylinderTestMovement(const Transform &trans,
 	case INVALID:
 		return false;
 	case VERTBOX:
-		return vertBox.CylinderTestMovement(trans, validMovementFactor, cyl,
-											movementRay, normal);
+		return vertBox.CylinderTestMovement(
+			trans * this->trans, validMovementFactor, cyl, movementRay, normal);
 	case CYLINDER:
-		return cylinder.CylinderTestMovement(trans, validMovementFactor, cyl,
-											 movementRay, normal);
+		return cylinder.CylinderTestMovement(
+			trans * this->trans, validMovementFactor, cyl, movementRay, normal);
 	case SPHERE:
-		return sphere.CylinderTestMovement(trans, validMovementFactor, cyl,
-										   movementRay, normal);
+		return sphere.CylinderTestMovement(
+			trans * this->trans, validMovementFactor, cyl, movementRay, normal);
 	case RECTANGLE:
-		return rectangle.CylinderTestMovement(trans, validMovementFactor, cyl,
-											  movementRay, normal);
+		return rectangle.CylinderTestMovement(
+			trans * this->trans, validMovementFactor, cyl, movementRay, normal);
 	case VERTICAL_TRIANGLE:
-		return vertTriangle.CylinderTestMovement(trans, validMovementFactor,
-												 cyl, movementRay, normal);
+		return vertTriangle.CylinderTestMovement(
+			trans * this->trans, validMovementFactor, cyl, movementRay, normal);
 	case CAPPED_CONE:
-		return cappedCone.CylinderTestMovement(trans, validMovementFactor, cyl,
-											   movementRay, normal);
+		return cappedCone.CylinderTestMovement(
+			trans * this->trans, validMovementFactor, cyl, movementRay, normal);
 	default:
 		return false;
 	}

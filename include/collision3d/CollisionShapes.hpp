@@ -112,7 +112,7 @@ template <typename T, typename MT> struct HeightMap {
 									 int depth, int x, int z) const;
 
 	HeightMap() : width(0), height(0) {}
-	
+
 	HeightMap(HeightMap &other) = default;
 	HeightMap(HeightMap &&other) = default;
 	HeightMap(const HeightMap &other) = default;
@@ -120,7 +120,7 @@ template <typename T, typename MT> struct HeightMap {
 	HeightMap &operator=(HeightMap &other) = default;
 	HeightMap &operator=(HeightMap &&other) = default;
 	HeightMap &operator=(const HeightMap &other) = default;
-	
+
 	// Treting cylinder as point at it's origin
 	COLLISION_SHAPE_METHODS_DECLARATION()
 };
@@ -151,7 +151,9 @@ struct AnyPrimitive {
 		VerticalCappedCone cappedCone;
 	};
 
-	enum Type {
+	Transform trans;
+
+	enum Type : uint8_t {
 		INVALID = 0,
 		VERTBOX = 1,
 		CYLINDER = 2,
@@ -161,12 +163,12 @@ struct AnyPrimitive {
 		CAPPED_CONE = 6,
 	} type = INVALID;
 
-	AnyPrimitive(VertBox vertBox);
-	AnyPrimitive(Cylinder cylinder);
-	AnyPrimitive(Sphere sphere);
-	AnyPrimitive(Rectangle rectangle);
-	AnyPrimitive(VerticalTriangle vertTriangle);
-	AnyPrimitive(VerticalCappedCone cappedCone);
+	AnyPrimitive(VertBox vertBox, Transform trans = {});
+	AnyPrimitive(Cylinder cylinder, Transform trans = {});
+	AnyPrimitive(Sphere sphere, Transform trans = {});
+	AnyPrimitive(Rectangle rectangle, Transform trans = {});
+	AnyPrimitive(VerticalTriangle vertTriangle, Transform trans = {});
+	AnyPrimitive(VerticalCappedCone cappedCone, Transform trans = {});
 
 	AnyPrimitive &operator=(VertBox vertBox);
 	AnyPrimitive &operator=(Cylinder cylinder);
@@ -174,7 +176,7 @@ struct AnyPrimitive {
 	AnyPrimitive &operator=(Rectangle rectangle);
 	AnyPrimitive &operator=(VerticalTriangle vertTriangle);
 	AnyPrimitive &operator=(VerticalCappedCone cappedCone);
-	
+
 	AnyPrimitive() = default;
 
 	AnyPrimitive(AnyPrimitive &other) = default;
@@ -189,15 +191,10 @@ struct AnyPrimitive {
 };
 
 struct CompoundPrimitive {
-	struct Shape {
-		AnyPrimitive primitive;
-		Transform transform;
-	};
+	std::vector<AnyPrimitive> primitives;
 
-	std::vector<Shape> shapes;
-	
 	CompoundPrimitive() = default;
-	
+
 	CompoundPrimitive(CompoundPrimitive &other) = default;
 	CompoundPrimitive(CompoundPrimitive &&other) = default;
 	CompoundPrimitive(const CompoundPrimitive &other) = default;
@@ -221,7 +218,9 @@ struct AnyShape {
 		CompoundPrimitive compound;
 	};
 
-	enum Type {
+	Transform trans;
+
+	enum Type : uint8_t {
 		INVALID = 0,
 		VERTBOX = 1,
 		CYLINDER = 2,
@@ -233,14 +232,14 @@ struct AnyShape {
 		COMPOUND = 8,
 	} type = INVALID;
 
-	AnyShape(VertBox vertBox);
-	AnyShape(Cylinder cylinder);
-	AnyShape(Sphere sphere);
-	AnyShape(Rectangle rectangle);
-	AnyShape(VerticalTriangle vertTriangle);
-	AnyShape(VerticalCappedCone cappedCone);
-	AnyShape(HeightMap<float, uint8_t> &&heightMap);
-	AnyShape(CompoundPrimitive &&compound);
+	AnyShape(VertBox vertBox, Transform trans = {});
+	AnyShape(Cylinder cylinder, Transform trans = {});
+	AnyShape(Sphere sphere, Transform trans = {});
+	AnyShape(Rectangle rectangle, Transform trans = {});
+	AnyShape(VerticalTriangle vertTriangle, Transform trans = {});
+	AnyShape(VerticalCappedCone cappedCone, Transform trans = {});
+	AnyShape(HeightMap<float, uint8_t> &&heightMap, Transform trans = {});
+	AnyShape(CompoundPrimitive &&compound, Transform trans = {});
 
 	AnyShape &operator=(VertBox vertBox);
 	AnyShape &operator=(Cylinder cylinder);
@@ -250,7 +249,7 @@ struct AnyShape {
 	AnyShape &operator=(VerticalCappedCone cappedCone);
 	AnyShape &operator=(HeightMap<float, uint8_t> &&heightMap);
 	AnyShape &operator=(CompoundPrimitive &&compound);
-	
+
 	AnyShape();
 
 	AnyShape(AnyShape &other);
@@ -260,7 +259,7 @@ struct AnyShape {
 	AnyShape &operator=(AnyShape &other);
 	AnyShape &operator=(AnyShape &&other);
 	AnyShape &operator=(const AnyShape &other);
-	
+
 	~AnyShape();
 
 	COLLISION_SHAPE_METHODS_DECLARATION()
