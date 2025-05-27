@@ -8,77 +8,98 @@ namespace Collision3D
 {
 using namespace spp;
 
-AnyShape::AnyShape(VertBox vertBox) : vertBox(vertBox), type(VERTBOX) {}
-AnyShape::AnyShape(Cylinder cylinder) : cylinder(cylinder), type(CYLINDER) {}
-AnyShape::AnyShape(Sphere sphere) : sphere(sphere), type(SPHERE) {}
-AnyShape::AnyShape(Rectangle rectangle) : rectangle(rectangle), type(RECTANGLE)
+AnyShape::AnyShape(VertBox vertBox, Transform trans)
+	: vertBox(vertBox), trans(trans), type(VERTBOX)
 {
 }
-AnyShape::AnyShape(VerticalTriangle vertTriangle)
-	: vertTriangle(vertTriangle), type(VERTICAL_TRIANGLE)
+AnyShape::AnyShape(Cylinder cylinder, Transform trans)
+	: cylinder(cylinder), trans(trans), type(CYLINDER)
 {
 }
-AnyShape::AnyShape(VerticalCappedCone cappedCone)
-	: cappedCone(cappedCone), type(CAPPED_CONE)
+AnyShape::AnyShape(Sphere sphere, Transform trans)
+	: sphere(sphere), trans(trans), type(SPHERE)
 {
 }
-AnyShape::AnyShape(HeightMap<float, uint8_t> &&heightMap)
+AnyShape::AnyShape(Rectangle rectangle, Transform trans)
+	: rectangle(rectangle), trans(trans), type(RECTANGLE)
+{
+}
+AnyShape::AnyShape(VerticalTriangle vertTriangle, Transform trans)
+	: vertTriangle(vertTriangle), trans(trans), type(VERTICAL_TRIANGLE)
+{
+}
+AnyShape::AnyShape(VerticalCappedCone cappedCone, Transform trans)
+	: cappedCone(cappedCone), trans(trans), type(CAPPED_CONE)
+{
+}
+AnyShape::AnyShape(HeightMap<float, uint8_t> &&heightMap, Transform trans)
 	: heightMap(new HeightMap<float, uint8_t>(std::move(heightMap))),
-	  type(HEIGHT_MAP)
+	  trans(trans), type(HEIGHT_MAP)
 {
 }
-AnyShape::AnyShape(CompoundPrimitive &&compound)
-	: compound(std::move(compound)), type(COMPOUND)
+AnyShape::AnyShape(CompoundPrimitive &&compound, Transform trans)
+	: compound(std::move(compound)), trans(trans), type(COMPOUND)
 {
 }
 
 AnyShape &AnyShape::operator=(VertBox vertBox)
 {
+	this->~AnyShape();
 	new (this) AnyShape(vertBox);
+	trans = {};
 	return *this;
 }
 AnyShape &AnyShape::operator=(Cylinder cylinder)
 {
+	this->~AnyShape();
 	new (this) AnyShape(cylinder);
+	trans = {};
 	return *this;
 }
 AnyShape &AnyShape::operator=(Sphere sphere)
 {
+	this->~AnyShape();
 	new (this) AnyShape(sphere);
+	trans = {};
 	return *this;
 }
 AnyShape &AnyShape::operator=(Rectangle rectangle)
 {
+	this->~AnyShape();
 	new (this) AnyShape(rectangle);
+	trans = {};
 	return *this;
 }
 AnyShape &AnyShape::operator=(VerticalTriangle vertTriangle)
 {
+	this->~AnyShape();
 	new (this) AnyShape(vertTriangle);
+	trans = {};
 	return *this;
 }
 AnyShape &AnyShape::operator=(VerticalCappedCone cappedCone)
 {
+	this->~AnyShape();
 	new (this) AnyShape(cappedCone);
+	trans = {};
 	return *this;
 }
 AnyShape &AnyShape::operator=(HeightMap<float, uint8_t> &&heightMap)
 {
 	this->~AnyShape();
 	new (this) AnyShape(std::move(heightMap));
+	trans = {};
 	return *this;
 }
 AnyShape &AnyShape::operator=(CompoundPrimitive &&compound)
 {
 	this->~AnyShape();
 	new (this) AnyShape(std::move(compound));
+	trans = {};
 	return *this;
 }
 
-AnyShape::AnyShape()
-{
-	type = INVALID;
-}
+AnyShape::AnyShape() { type = INVALID; }
 
 AnyShape::AnyShape(AnyShape &other)
 {
@@ -113,6 +134,7 @@ AnyShape::AnyShape(AnyShape &other)
 	default:
 		type = INVALID;
 	}
+	this->trans = other.trans;
 }
 
 AnyShape::AnyShape(AnyShape &&other)
@@ -151,6 +173,7 @@ AnyShape::AnyShape(AnyShape &&other)
 		type = INVALID;
 	}
 	other.type = INVALID;
+	this->trans = other.trans;
 }
 
 AnyShape::AnyShape(const AnyShape &other)
@@ -186,6 +209,7 @@ AnyShape::AnyShape(const AnyShape &other)
 	default:
 		type = INVALID;
 	}
+	this->trans = other.trans;
 }
 
 AnyShape::~AnyShape()
@@ -230,21 +254,21 @@ spp::Aabb AnyShape::GetAabb(const Transform &trans) const
 	case INVALID:
 		return spp::AABB_INVALID;
 	case VERTBOX:
-		return vertBox.GetAabb(trans);
+		return vertBox.GetAabb(trans * this->trans);
 	case CYLINDER:
-		return cylinder.GetAabb(trans);
+		return cylinder.GetAabb(trans * this->trans);
 	case SPHERE:
-		return sphere.GetAabb(trans);
+		return sphere.GetAabb(trans * this->trans);
 	case RECTANGLE:
-		return rectangle.GetAabb(trans);
+		return rectangle.GetAabb(trans * this->trans);
 	case VERTICAL_TRIANGLE:
-		return vertTriangle.GetAabb(trans);
+		return vertTriangle.GetAabb(trans * this->trans);
 	case CAPPED_CONE:
-		return cappedCone.GetAabb(trans);
+		return cappedCone.GetAabb(trans * this->trans);
 	case HEIGHT_MAP:
-		return heightMap->GetAabb(trans);
+		return heightMap->GetAabb(trans * this->trans);
 	case COMPOUND:
-		return compound.GetAabb(trans);
+		return compound.GetAabb(trans * this->trans);
 	default:
 		return spp::AABB_INVALID;
 	}
@@ -257,25 +281,26 @@ bool AnyShape::RayTest(const Transform &trans, const RayInfo &ray, float &near,
 	case INVALID:
 		return false;
 	case VERTBOX:
-		return vertBox.RayTest(trans, ray, near, normal);
+		return vertBox.RayTest(trans * this->trans, ray, near, normal);
 	case CYLINDER:
-		return cylinder.RayTest(trans, ray, near, normal);
+		return cylinder.RayTest(trans * this->trans, ray, near, normal);
 	case SPHERE:
-		return sphere.RayTest(trans, ray, near, normal);
+		return sphere.RayTest(trans * this->trans, ray, near, normal);
 	case RECTANGLE:
-		return rectangle.RayTest(trans, ray, near, normal);
+		return rectangle.RayTest(trans * this->trans, ray, near, normal);
 	case VERTICAL_TRIANGLE:
-		return vertTriangle.RayTest(trans, ray, near, normal);
+		return vertTriangle.RayTest(trans * this->trans, ray, near, normal);
 	case CAPPED_CONE:
-		return cappedCone.RayTest(trans, ray, near, normal);
+		return cappedCone.RayTest(trans * this->trans, ray, near, normal);
 	case HEIGHT_MAP:
-		return heightMap->RayTest(trans, ray, near, normal);
+		return heightMap->RayTest(trans * this->trans, ray, near, normal);
 	case COMPOUND:
-		return compound.RayTest(trans, ray, near, normal);
+		return compound.RayTest(trans * this->trans, ray, near, normal);
 	default:
 		return false;
 	}
 }
+
 bool AnyShape::RayTestLocal(const Transform &trans, const RayInfo &ray,
 							const RayInfo &rayLocal, float &near,
 							glm::vec3 &normal) const
@@ -284,21 +309,29 @@ bool AnyShape::RayTestLocal(const Transform &trans, const RayInfo &ray,
 	case INVALID:
 		return false;
 	case VERTBOX:
-		return vertBox.RayTestLocal(trans, ray, rayLocal, near, normal);
+		return vertBox.RayTestLocal(trans * this->trans, ray, rayLocal, near,
+									normal);
 	case CYLINDER:
-		return cylinder.RayTestLocal(trans, ray, rayLocal, near, normal);
+		return cylinder.RayTestLocal(trans * this->trans, ray, rayLocal, near,
+									 normal);
 	case SPHERE:
-		return sphere.RayTestLocal(trans, ray, rayLocal, near, normal);
+		return sphere.RayTestLocal(trans * this->trans, ray, rayLocal, near,
+								   normal);
 	case RECTANGLE:
-		return rectangle.RayTestLocal(trans, ray, rayLocal, near, normal);
+		return rectangle.RayTestLocal(trans * this->trans, ray, rayLocal, near,
+									  normal);
 	case VERTICAL_TRIANGLE:
-		return vertTriangle.RayTestLocal(trans, ray, rayLocal, near, normal);
+		return vertTriangle.RayTestLocal(trans * this->trans, ray, rayLocal,
+										 near, normal);
 	case CAPPED_CONE:
-		return cappedCone.RayTestLocal(trans, ray, rayLocal, near, normal);
+		return cappedCone.RayTestLocal(trans * this->trans, ray, rayLocal, near,
+									   normal);
 	case HEIGHT_MAP:
-		return heightMap->RayTestLocal(trans, ray, rayLocal, near, normal);
+		return heightMap->RayTestLocal(trans * this->trans, ray, rayLocal, near,
+									   normal);
 	case COMPOUND:
-		return compound.RayTestLocal(trans, ray, rayLocal, near, normal);
+		return compound.RayTestLocal(trans * this->trans, ray, rayLocal, near,
+									 normal);
 	default:
 		return false;
 	}
@@ -311,21 +344,29 @@ bool AnyShape::CylinderTestOnGround(const Transform &trans, const Cylinder &cyl,
 	case INVALID:
 		return false;
 	case VERTBOX:
-		return vertBox.CylinderTestOnGround(trans, cyl, pos, offsetHeight);
+		return vertBox.CylinderTestOnGround(trans * this->trans, cyl, pos,
+											offsetHeight);
 	case CYLINDER:
-		return cylinder.CylinderTestOnGround(trans, cyl, pos, offsetHeight);
+		return cylinder.CylinderTestOnGround(trans * this->trans, cyl, pos,
+											 offsetHeight);
 	case SPHERE:
-		return sphere.CylinderTestOnGround(trans, cyl, pos, offsetHeight);
+		return sphere.CylinderTestOnGround(trans * this->trans, cyl, pos,
+										   offsetHeight);
 	case RECTANGLE:
-		return rectangle.CylinderTestOnGround(trans, cyl, pos, offsetHeight);
+		return rectangle.CylinderTestOnGround(trans * this->trans, cyl, pos,
+											  offsetHeight);
 	case VERTICAL_TRIANGLE:
-		return vertTriangle.CylinderTestOnGround(trans, cyl, pos, offsetHeight);
+		return vertTriangle.CylinderTestOnGround(trans * this->trans, cyl, pos,
+												 offsetHeight);
 	case CAPPED_CONE:
-		return cappedCone.CylinderTestOnGround(trans, cyl, pos, offsetHeight);
+		return cappedCone.CylinderTestOnGround(trans * this->trans, cyl, pos,
+											   offsetHeight);
 	case HEIGHT_MAP:
-		return heightMap->CylinderTestOnGround(trans, cyl, pos, offsetHeight);
+		return heightMap->CylinderTestOnGround(trans * this->trans, cyl, pos,
+											   offsetHeight);
 	case COMPOUND:
-		return compound.CylinderTestOnGround(trans, cyl, pos, offsetHeight);
+		return compound.CylinderTestOnGround(trans * this->trans, cyl, pos,
+											 offsetHeight);
 	default:
 		return false;
 	}
@@ -341,29 +382,29 @@ bool AnyShape::CylinderTestMovement(const Transform &trans,
 	case INVALID:
 		return false;
 	case VERTBOX:
-		return vertBox.CylinderTestMovement(trans, validMovementFactor, cyl,
-											movementRay, normal);
+		return vertBox.CylinderTestMovement(
+			trans * this->trans, validMovementFactor, cyl, movementRay, normal);
 	case CYLINDER:
-		return cylinder.CylinderTestMovement(trans, validMovementFactor, cyl,
-											 movementRay, normal);
+		return cylinder.CylinderTestMovement(
+			trans * this->trans, validMovementFactor, cyl, movementRay, normal);
 	case SPHERE:
-		return sphere.CylinderTestMovement(trans, validMovementFactor, cyl,
-										   movementRay, normal);
+		return sphere.CylinderTestMovement(
+			trans * this->trans, validMovementFactor, cyl, movementRay, normal);
 	case RECTANGLE:
-		return rectangle.CylinderTestMovement(trans, validMovementFactor, cyl,
-											  movementRay, normal);
+		return rectangle.CylinderTestMovement(
+			trans * this->trans, validMovementFactor, cyl, movementRay, normal);
 	case VERTICAL_TRIANGLE:
-		return vertTriangle.CylinderTestMovement(trans, validMovementFactor,
-												 cyl, movementRay, normal);
+		return vertTriangle.CylinderTestMovement(
+			trans * this->trans, validMovementFactor, cyl, movementRay, normal);
 	case CAPPED_CONE:
-		return cappedCone.CylinderTestMovement(trans, validMovementFactor, cyl,
-											   movementRay, normal);
+		return cappedCone.CylinderTestMovement(
+			trans * this->trans, validMovementFactor, cyl, movementRay, normal);
 	case HEIGHT_MAP:
-		return heightMap->CylinderTestMovement(trans, validMovementFactor, cyl,
-											   movementRay, normal);
+		return heightMap->CylinderTestMovement(
+			trans * this->trans, validMovementFactor, cyl, movementRay, normal);
 	case COMPOUND:
-		return compound.CylinderTestMovement(trans, validMovementFactor, cyl,
-											 movementRay, normal);
+		return compound.CylinderTestMovement(
+			trans * this->trans, validMovementFactor, cyl, movementRay, normal);
 	default:
 		return false;
 	}

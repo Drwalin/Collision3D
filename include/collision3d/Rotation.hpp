@@ -31,6 +31,32 @@ struct Rotation {
 		return {(uint8_t)v};
 	}
 
+	inline float ToDegrees() const { return (360.0f / 240.0f) * value; }
+
+	inline float ToRadians() const
+	{
+		return (3.1415926535897932384626f * 2.0f / 240.0f) * value;
+	}
+
+	inline static Rotation FromRadians(float radians)
+	{
+		int v =
+			(radians * (240.0f / (3.1415926535897932384626f * 2.0f))) + 0.5f;
+		v %= 240;
+		v += v < 0 ? 240 : 0;
+		assert(v >= 0 && v < 240);
+		return {(uint8_t)v};
+	}
+
+	inline static Rotation FromDegrees(float degrees)
+	{
+		int v = (degrees * (240.0f / (360.0f))) + 0.5f;
+		v %= 240;
+		v += v < 0 ? 240 : 0;
+		assert(v >= 0 && v < 240);
+		return {(uint8_t)v};
+	}
+
 	inline glm::vec2 ToLocal(const glm::vec2 &v) const
 	{
 		assert(value < 240);
@@ -70,7 +96,7 @@ struct Rotation {
 		const int a = l.value;
 		const int b = r.value;
 		const int sum = a - b + (a > b ? 0 : 240);
-		assert(sum >= 0 && sum < 240);
+		assert(sum >= 0 && sum <= 240);
 		return {(uint8_t)sum};
 	}
 
@@ -89,7 +115,7 @@ struct Rotation {
 	const static glm::vec2 vecs[241]; // cos, sin
 	inline glm::vec2 GetVec2() const
 	{
-		assert(value < 241);
+		assert(value <= 240);
 		return vecs[value];
 	}
 };

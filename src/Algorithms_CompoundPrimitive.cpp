@@ -9,8 +9,8 @@ namespace Collision3D
 spp::Aabb CompoundPrimitive::GetAabb(const Transform &trans) const
 {
 	spp::Aabb aabb = spp::AABB_INVALID;
-	for (const auto &s : shapes) {
-		aabb = aabb + s.primitive.GetAabb(trans * s.transform);
+	for (const auto &s : primitives) {
+		aabb = aabb + s.GetAabb(trans);
 	}
 	return aabb;
 }
@@ -21,8 +21,8 @@ bool CompoundPrimitive::RayTest(const Transform &trans, const RayInfo &ray,
 	bool res = false;
 	float ne;
 	glm::vec3 no;
-	for (const auto &s : shapes) {
-		if (s.primitive.RayTest(trans * s.transform, ray, ne, no)) {
+	for (const auto &s : primitives) {
+		if (s.RayTest(trans, ray, ne, no)) {
 			if (res) {
 				if (near > ne) {
 					near = ne;
@@ -45,8 +45,8 @@ bool CompoundPrimitive::RayTestLocal(const Transform &trans, const RayInfo &ray,
 	bool res = false;
 	float ne;
 	glm::vec3 no;
-	for (const auto &s : shapes) {
-		if (s.primitive.RayTest(s.transform, ray, ne, no)) {
+	for (const auto &s : primitives) {
+		if (s.RayTest(trans, ray, ne, no)) {
 			if (res) {
 				if (near > ne) {
 					near = ne;
@@ -71,9 +71,8 @@ bool CompoundPrimitive::CylinderTestOnGround(const Transform &trans,
 {
 	bool res = false;
 	float ofh;
-	for (const auto &s : shapes) {
-		if (s.primitive.CylinderTestOnGround(trans * s.transform, cyl, pos,
-											 ofh)) {
+	for (const auto &s : primitives) {
+		if (s.CylinderTestOnGround(trans, cyl, pos, ofh)) {
 			if (res) {
 				if (offsetHeight < ofh) {
 					offsetHeight = ofh;
@@ -96,9 +95,8 @@ bool CompoundPrimitive::CylinderTestMovement(const Transform &trans,
 	bool res = false;
 	float vmf;
 	glm::vec3 no;
-	for (const auto &s : shapes) {
-		if (s.primitive.CylinderTestMovement(trans * s.transform, vmf, cyl,
-											 movementRay, no)) {
+	for (const auto &s : primitives) {
+		if (s.CylinderTestMovement(trans, vmf, cyl, movementRay, no)) {
 			if (res) {
 				if (validMovementFactor > vmf) {
 					validMovementFactor = vmf;
