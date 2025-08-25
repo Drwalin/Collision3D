@@ -14,6 +14,10 @@ struct Triangle;
 template <typename T, typename MT> struct HeightMap;
 struct VerticalCappedCone;
 
+struct CompoundPrimitive;
+struct AnyShape;
+struct AnyPrimitive;
+
 struct Rotation;
 struct Transform;
 } // namespace Collision3D
