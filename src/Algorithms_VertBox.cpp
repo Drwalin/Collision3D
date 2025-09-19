@@ -41,8 +41,9 @@ spp::Aabb VertBox::GetAabb(const Transform &trans) const
 	return {min + half, max + half};
 }
 
-inline bool FastRayTest2(const glm::vec3 min, const glm::vec3 max,
-						 const RayInfo &ray, float &near, glm::vec3 &normal)
+static inline bool FastRayTest2(const glm::vec3 min, const glm::vec3 max,
+								const RayInfo &ray, float &near,
+								glm::vec3 &normal)
 {
 	assert(glm::all(glm::lessThanEqual(min, max)));
 	alignas(16) glm::vec3 bounds[2] = {min, max};

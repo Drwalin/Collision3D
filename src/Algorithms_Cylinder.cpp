@@ -15,8 +15,8 @@ spp::Aabb Cylinder::GetAabb(const Transform &trans) const
 	return {min, max};
 }
 
-bool cylIntersect(const RayInfo &ray, glm::vec3 pos, float height, float radius,
-				  float &near, glm::vec3 &normal)
+static bool cylinderIntersect(const RayInfo &ray, glm::vec3 pos, float height,
+							  float radius, float &near, glm::vec3 &normal)
 {
 	glm::vec3 ba = {0, height, 0};
 	glm::vec3 oc = ray.start - pos;
@@ -53,7 +53,7 @@ bool cylIntersect(const RayInfo &ray, glm::vec3 pos, float height, float radius,
 bool Cylinder::RayTest(const Transform &trans, const RayInfo &ray, float &near,
 					   glm::vec3 &normal) const
 {
-	return cylIntersect(ray, trans.pos, height, radius, near, normal);
+	return cylinderIntersect(ray, trans.pos, height, radius, near, normal);
 }
 
 bool Cylinder::RayTestLocal(const Transform &trans, const RayInfo &ray,
@@ -61,7 +61,7 @@ bool Cylinder::RayTestLocal(const Transform &trans, const RayInfo &ray,
 							glm::vec3 &normal) const
 {
 	// TODO: warn because it is slower
-	if (cylIntersect(rayLocal, trans.pos, height, radius, near, normal)) {
+	if (cylinderIntersect(rayLocal, trans.pos, height, radius, near, normal)) {
 		normal = trans.rot * normal;
 		return true;
 	} else {
@@ -97,7 +97,8 @@ bool Cylinder::CylinderTestMovement(const Transform &trans,
 									glm::vec3 &normal) const
 {
 	Cylinder cyl2 = {height + cyl.height, radius + cyl.radius};
-	return cylIntersect(movementRay, trans.pos - glm::vec3(0, cyl.height, 0),
-						cyl2.height, cyl2.radius, validMovementFactor, normal);
+	return cylinderIntersect(
+		movementRay, trans.pos - glm::vec3(0, cyl.height, 0), cyl2.height,
+		cyl2.radius, validMovementFactor, normal);
 }
 } // namespace Collision3D
