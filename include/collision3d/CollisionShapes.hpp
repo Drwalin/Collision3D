@@ -45,11 +45,20 @@ struct Sphere {
 	COLLISION_SHAPE_METHODS_DECLARATION()
 };
 
-// Origin at center of first horizontal edge
-struct Rectangle {
-	float width;  // expands x
-	float height; // expands y
-	float depth;  // expands z
+// Origin at center of first horizontal edge (-x, +x), and extends 
+struct RampRectangle {
+	float halfWidth;     // expands (-x/2 ; +x/2)
+	float height;        // expands +y
+	float depth;         // expands +z
+	float halfThickness; // thickens symmetrically y
+
+	COLLISION_SHAPE_METHODS_DECLARATION()
+};
+
+// Origin at center of first horizontal edge (-x, +x)
+struct RampTriangle {
+	float sideLength;
+	float heightOfVertexOnZ; // height of vertex at (0, Y, +z)
 
 	COLLISION_SHAPE_METHODS_DECLARATION()
 };
@@ -146,9 +155,10 @@ struct AnyPrimitive {
 		VertBox vertBox;
 		Cylinder cylinder;
 		Sphere sphere;
-		Rectangle rectangle;
+		RampRectangle rectangle;
 		VerticalTriangle vertTriangle;
 		VerticalCappedCone cappedCone;
+		RampTriangle rampTriangle;
 	};
 
 	Transform trans;
@@ -158,24 +168,27 @@ struct AnyPrimitive {
 		VERTBOX = 1,
 		CYLINDER = 2,
 		SPHERE = 3,
-		RECTANGLE = 4,
+		RAMP_RECTANGLE = 4,
 		VERTICAL_TRIANGLE = 5,
 		CAPPED_CONE = 6,
+		RAMP_TRIANGLE = 7,
 	} type = INVALID;
 
 	AnyPrimitive(VertBox vertBox, Transform trans = {});
 	AnyPrimitive(Cylinder cylinder, Transform trans = {});
 	AnyPrimitive(Sphere sphere, Transform trans = {});
-	AnyPrimitive(Rectangle rectangle, Transform trans = {});
+	AnyPrimitive(RampRectangle rectangle, Transform trans = {});
 	AnyPrimitive(VerticalTriangle vertTriangle, Transform trans = {});
 	AnyPrimitive(VerticalCappedCone cappedCone, Transform trans = {});
+	AnyPrimitive(RampTriangle rampTriangle, Transform trans = {});
 
 	AnyPrimitive &operator=(VertBox vertBox);
 	AnyPrimitive &operator=(Cylinder cylinder);
 	AnyPrimitive &operator=(Sphere sphere);
-	AnyPrimitive &operator=(Rectangle rectangle);
+	AnyPrimitive &operator=(RampRectangle rectangle);
 	AnyPrimitive &operator=(VerticalTriangle vertTriangle);
 	AnyPrimitive &operator=(VerticalCappedCone cappedCone);
+	AnyPrimitive &operator=(RampTriangle rampTriangle);
 
 	AnyPrimitive() = default;
 
@@ -211,9 +224,10 @@ struct AnyShape {
 		VertBox vertBox;
 		Cylinder cylinder;
 		Sphere sphere;
-		Rectangle rectangle;
+		RampRectangle rectangle;
 		VerticalTriangle vertTriangle;
 		VerticalCappedCone cappedCone;
+		RampTriangle rampTriangle;
 		HeightMap<float, uint8_t> *heightMap;
 		CompoundPrimitive compound;
 	};
@@ -225,28 +239,31 @@ struct AnyShape {
 		VERTBOX = 1,
 		CYLINDER = 2,
 		SPHERE = 3,
-		RECTANGLE = 4,
+		RAMP_RECTANGLE = 4,
 		VERTICAL_TRIANGLE = 5,
 		CAPPED_CONE = 6,
 		HEIGHT_MAP = 7,
 		COMPOUND = 8,
+		RAMP_TRIANGLE = 9,
 	} type = INVALID;
 
 	AnyShape(VertBox vertBox, Transform trans = {});
 	AnyShape(Cylinder cylinder, Transform trans = {});
 	AnyShape(Sphere sphere, Transform trans = {});
-	AnyShape(Rectangle rectangle, Transform trans = {});
+	AnyShape(RampRectangle rectangle, Transform trans = {});
 	AnyShape(VerticalTriangle vertTriangle, Transform trans = {});
 	AnyShape(VerticalCappedCone cappedCone, Transform trans = {});
+	AnyShape(RampTriangle rampTriangle, Transform trans = {});
 	AnyShape(HeightMap<float, uint8_t> &&heightMap, Transform trans = {});
 	AnyShape(CompoundPrimitive &&compound, Transform trans = {});
 
 	AnyShape &operator=(VertBox vertBox);
 	AnyShape &operator=(Cylinder cylinder);
 	AnyShape &operator=(Sphere sphere);
-	AnyShape &operator=(Rectangle rectangle);
+	AnyShape &operator=(RampRectangle rectangle);
 	AnyShape &operator=(VerticalTriangle vertTriangle);
 	AnyShape &operator=(VerticalCappedCone cappedCone);
+	AnyShape &operator=(RampTriangle rampTriangle);
 	AnyShape &operator=(HeightMap<float, uint8_t> &&heightMap);
 	AnyShape &operator=(CompoundPrimitive &&compound);
 

@@ -74,7 +74,7 @@ bool Cylinder::CylinderTestOnGround(const Transform &trans, const Cylinder &cyl,
 {
 	float r2 = radius + cyl.radius;
 	r2 = r2 * r2;
-	glm::vec2 diff = {pos.x - trans.pos.x, pos.y - trans.pos.y};
+	glm::vec2 diff = {pos.x - trans.pos.x, pos.z - trans.pos.z};
 	if (r2 >= glm::length2(diff)) {
 		CylinderTestOnGroundAssumeCollision2D(trans, cyl, pos, offsetHeight);
 		return true;
