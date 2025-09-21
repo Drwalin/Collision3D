@@ -155,7 +155,7 @@ struct AnyPrimitive {
 		VertBox vertBox;
 		Cylinder cylinder;
 		Sphere sphere;
-		RampRectangle rectangle;
+		RampRectangle rampRectangle;
 		VerticalTriangle vertTriangle;
 		VerticalCappedCone cappedCone;
 		RampTriangle rampTriangle;
@@ -177,7 +177,7 @@ struct AnyPrimitive {
 	AnyPrimitive(VertBox vertBox, Transform trans = {});
 	AnyPrimitive(Cylinder cylinder, Transform trans = {});
 	AnyPrimitive(Sphere sphere, Transform trans = {});
-	AnyPrimitive(RampRectangle rectangle, Transform trans = {});
+	AnyPrimitive(RampRectangle rampRectangle, Transform trans = {});
 	AnyPrimitive(VerticalTriangle vertTriangle, Transform trans = {});
 	AnyPrimitive(VerticalCappedCone cappedCone, Transform trans = {});
 	AnyPrimitive(RampTriangle rampTriangle, Transform trans = {});
@@ -185,7 +185,7 @@ struct AnyPrimitive {
 	AnyPrimitive &operator=(VertBox vertBox);
 	AnyPrimitive &operator=(Cylinder cylinder);
 	AnyPrimitive &operator=(Sphere sphere);
-	AnyPrimitive &operator=(RampRectangle rectangle);
+	AnyPrimitive &operator=(RampRectangle rampRectangle);
 	AnyPrimitive &operator=(VerticalTriangle vertTriangle);
 	AnyPrimitive &operator=(VerticalCappedCone cappedCone);
 	AnyPrimitive &operator=(RampTriangle rampTriangle);
@@ -224,7 +224,7 @@ struct AnyShape {
 		VertBox vertBox;
 		Cylinder cylinder;
 		Sphere sphere;
-		RampRectangle rectangle;
+		RampRectangle rampRectangle;
 		VerticalTriangle vertTriangle;
 		VerticalCappedCone cappedCone;
 		RampTriangle rampTriangle;
@@ -242,15 +242,15 @@ struct AnyShape {
 		RAMP_RECTANGLE = 4,
 		VERTICAL_TRIANGLE = 5,
 		CAPPED_CONE = 6,
-		HEIGHT_MAP = 7,
-		COMPOUND = 8,
-		RAMP_TRIANGLE = 9,
+		RAMP_TRIANGLE = 7,
+		HEIGHT_MAP = 62,
+		COMPOUND = 63,
 	} type = INVALID;
 
 	AnyShape(VertBox vertBox, Transform trans = {});
 	AnyShape(Cylinder cylinder, Transform trans = {});
 	AnyShape(Sphere sphere, Transform trans = {});
-	AnyShape(RampRectangle rectangle, Transform trans = {});
+	AnyShape(RampRectangle rampRectangle, Transform trans = {});
 	AnyShape(VerticalTriangle vertTriangle, Transform trans = {});
 	AnyShape(VerticalCappedCone cappedCone, Transform trans = {});
 	AnyShape(RampTriangle rampTriangle, Transform trans = {});
@@ -260,7 +260,7 @@ struct AnyShape {
 	AnyShape &operator=(VertBox vertBox);
 	AnyShape &operator=(Cylinder cylinder);
 	AnyShape &operator=(Sphere sphere);
-	AnyShape &operator=(RampRectangle rectangle);
+	AnyShape &operator=(RampRectangle rampRectangle);
 	AnyShape &operator=(VerticalTriangle vertTriangle);
 	AnyShape &operator=(VerticalCappedCone cappedCone);
 	AnyShape &operator=(RampTriangle rampTriangle);
