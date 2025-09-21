@@ -40,14 +40,36 @@ bool RampRectangle::RayTestLocal(const Transform &trans, const RayInfo &ray,
 	const float ofn = halfThickness * no.y;
 	const float offs[6] = {0, halfWidth, depth, halfWidth, ofn, ofn};
 
+	near = -1e9;
+	float far = 1e9;
 
+	for (int i = 0; i < 6; ++i) {
+		bool useNormal = false;
+		if (TestPlaneIterational(n[i], offs[i], rayLocal, near, far,
+								 useNormal)) {
+			if (useNormal) {
+				normal = n[i];
+			}
+		} else {
+			return false;
+		}
+	}
 
-
-	if (cylinderIntersect(rayLocal, trans.pos, height, radius, near, normal)) {
-		normal = trans.rot * normal;
-		return true;
-	} else {
+	if (near >= far) {
 		return false;
+	}
+
+	if (far <= 0.0f) {
+		return false;
+	}
+
+	if (near < 0.0f) {
+		near = 0.0f;
+		return true;
+	} else if (near > 1) {
+		return false;
+	} else {
+		return true;
 	}
 }
 
@@ -73,7 +95,7 @@ bool RampRectangle::CylinderTestMovement(const Transform &_trans,
 										 glm::vec3 &normal) const
 {
 	const float h2 = cyl.height * 0.5f;
-	RampRectangle tmp{width, height, depth, halfThickness + h2};
+	RampRectangle tmp{halfWidth, height, depth, halfThickness + h2};
 	Transform trans = _trans;
 	trans.pos.y += h2;
 	return tmp.RayTest(trans, movementRay, validMovementFactor, normal);

@@ -5,6 +5,7 @@
 #pragma once
 
 #include <vector>
+#include <memory>
 
 #include "HeightMapUtil.hpp"
 #include "CollisionAlgorithms.hpp"
@@ -45,11 +46,11 @@ struct Sphere {
 	COLLISION_SHAPE_METHODS_DECLARATION()
 };
 
-// Origin at center of first horizontal edge (-x, +x), and extends 
+// Origin at center of first horizontal edge (-x, +x), and extends
 struct RampRectangle {
-	float halfWidth;     // expands (-x/2 ; +x/2)
-	float height;        // expands +y
-	float depth;         // expands +z
+	float halfWidth;	 // expands (-x/2 ; +x/2)
+	float height;		 // expands +y
+	float depth;		 // expands +z
 	float halfThickness; // thickens symmetrically y
 
 	COLLISION_SHAPE_METHODS_DECLARATION()
@@ -228,7 +229,7 @@ struct AnyShape {
 		VerticalTriangle vertTriangle;
 		VerticalCappedCone cappedCone;
 		RampTriangle rampTriangle;
-		HeightMap<float, uint8_t> *heightMap;
+		std::unique_ptr<HeightMap<float, uint8_t>> heightMap;
 		CompoundPrimitive compound;
 	};
 

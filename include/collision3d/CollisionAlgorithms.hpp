@@ -17,6 +17,11 @@ namespace Collision3D
 using namespace spp;
 
 struct Cylinder;
+
+void TestPlane(glm::vec3 normal, float d, const RayInfo &ray, float &t,
+			   bool &startsInFront, bool &isParallel);
+bool TestPlaneIterational(glm::vec3 normal, float d, const RayInfo &ray,
+						  float &near, float &far, bool &useNormal);
 } // namespace Collision3D
 
 #define COLLISION_SHAPE_METHODS_DECLARATION()                                  \
