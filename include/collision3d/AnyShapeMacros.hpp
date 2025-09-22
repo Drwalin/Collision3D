@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "CollisionShapes_Primitives.hpp"
+
 #define EACH_PRIMITIVE(CLASS, MACRO, CODE)                                     \
 	MACRO(CLASS, CODE, ., VertBox, vertBox, VERTBOX)                           \
 	MACRO(CLASS, CODE, ., Cylinder, cylinder, CYLINDER)                        \
