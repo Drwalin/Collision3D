@@ -4,19 +4,17 @@
 
 #include "../include/collision3d/CollisionShapes.hpp"
 
-#include "AnyShapeMacros.hpp"
-
 namespace Collision3D
 {
-EACH_PRIMITIVE_TYPE(AnyPrimitive, CONSTRUCTOR_SHAPE, EMPTY_CODE)
-EACH_PRIMITIVE_TYPE(AnyPrimitive, OPERATOR_SET_SHAPE, EMPTY_CODE)
-	
+EACH_PRIMITIVE(AnyPrimitive, CONSTRUCTOR_SHAPE, EMPTY_CODE)
+EACH_PRIMITIVE(AnyPrimitive, OPERATOR_SET_SHAPE, EMPTY_CODE)
+
 spp::Aabb AnyPrimitive::GetAabb(const Transform &trans) const
 {
 	switch (type) {
 	case INVALID:
 		return spp::AABB_INVALID;
-	EACH_PRIMITIVE_TYPE(AnyShape, SWITCH_CASES, CODE_GET_AABB);
+		EACH_PRIMITIVE(AnyShape, SWITCH_CASES, CODE_GET_AABB);
 	default:
 		return spp::AABB_INVALID;
 	}
@@ -28,7 +26,7 @@ bool AnyPrimitive::RayTest(const Transform &trans, const RayInfo &ray,
 	switch (type) {
 	case INVALID:
 		return false;
-	EACH_PRIMITIVE_TYPE(AnyShape, SWITCH_CASES, CODE_RAY_TEST);
+		EACH_PRIMITIVE(AnyShape, SWITCH_CASES, CODE_RAY_TEST);
 	default:
 		return false;
 	}
@@ -41,7 +39,7 @@ bool AnyPrimitive::RayTestLocal(const Transform &trans, const RayInfo &ray,
 	switch (type) {
 	case INVALID:
 		return false;
-	EACH_PRIMITIVE_TYPE(AnyShape, SWITCH_CASES, CODE_RAY_TEST_LOCAL);
+		EACH_PRIMITIVE(AnyShape, SWITCH_CASES, CODE_RAY_TEST_LOCAL);
 	default:
 		return false;
 	}
@@ -54,7 +52,7 @@ bool AnyPrimitive::CylinderTestOnGround(const Transform &trans,
 	switch (type) {
 	case INVALID:
 		return false;
-	EACH_PRIMITIVE_TYPE(AnyShape, SWITCH_CASES, CODE_CYLINDER_TEST_ON_GROUND);
+		EACH_PRIMITIVE(AnyShape, SWITCH_CASES, CODE_CYLINDER_TEST_ON_GROUND);
 	default:
 		return false;
 	}
@@ -69,7 +67,7 @@ bool AnyPrimitive::CylinderTestMovement(const Transform &trans,
 	switch (type) {
 	case INVALID:
 		return false;
-	EACH_PRIMITIVE_TYPE(AnyShape, SWITCH_CASES, CODE_CYLINDER_TEST_MOVEMENT);
+		EACH_PRIMITIVE(AnyShape, SWITCH_CASES, CODE_CYLINDER_TEST_MOVEMENT);
 	default:
 		return false;
 	}

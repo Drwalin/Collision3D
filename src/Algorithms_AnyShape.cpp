@@ -3,31 +3,19 @@
 // You should have received a copy of the MIT License along with this program.
 
 #include "../include/collision3d/CollisionShapes.hpp"
-
-#include "AnyShapeMacros.hpp"
 	
 namespace Collision3D
 {
 using namespace spp;
 
-#define EACH_PRIMITIVE_TYPE_OR_COMPOUND(CLASS, MACRO, CODE)                    \
-	EACH_PRIMITIVE_TYPE(CLASS, MACRO, CODE)                                    \
-	MACRO(CLASS, CODE, ., Compound, compound, COMPOUND)
-
-using HeightMapFloatUint8_t = HeightMap<float, uint8_t>;
-#define EACH_PRIMITIVE_TYPE_OR_COMPOUND_OR_HEIGHTMAP(CLASS, MACRO, CODE)       \
-	EACH_PRIMITIVE_TYPE_OR_COMPOUND(CLASS, MACRO, CODE)                        \
-	MACRO(CLASS, CODE, ->, HeightMapFloatUint8_t, heightMap, HEIGHT_MAP)
-
-EACH_PRIMITIVE_TYPE(AnyShape, CONSTRUCTOR_SHAPE, EMPTY_CODE)
-AnyShape::AnyShape(HeightMap<float, uint8_t> &&heightMap, Transform trans)
-	: heightMap(new HeightMap<float, uint8_t>(std::move(heightMap))),
+EACH_PRIMITIVE_OR_COMPOUND(AnyShape, CONSTRUCTOR_SHAPE, EMPTY_CODE)
+AnyShape::AnyShape(HeightMap &&heightMap, Transform trans)
+	: heightMap(new HeightMap(std::move(heightMap))),
 	  trans(trans), type(HEIGHT_MAP) {}
-CONSTRUCTOR_SHAPE(AnyShape, EMPTY_CODE, ., CompoundPrimitive&&, compound, COMPOUND)
 
-EACH_PRIMITIVE_TYPE(AnyShape, OPERATOR_SET_SHAPE, EMPTY_CODE)
-OPERATOR_SET_SHAPE(AnyShape, {}, ->, HeightMapFloatUint8_t&&, heightMap, HEIGHT_MAP)
-OPERATOR_SET_SHAPE(AnyShape, {}, ., CompoundPrimitive&&, compound, COMPOUND)
+EACH_PRIMITIVE(AnyShape, OPERATOR_SET_SHAPE, EMPTY_CODE)
+OPERATOR_SET_SHAPE(AnyShape, {}, ->, HeightMap, heightMap, HEIGHT_MAP)
+OPERATOR_SET_SHAPE(AnyShape, {}, ., CompoundPrimitive, compound, COMPOUND)
 	
 
 AnyShape::AnyShape() { type = INVALID; }
@@ -38,9 +26,9 @@ AnyShape::AnyShape(AnyShape &other)
 	this->trans = other.trans;
 	switch (other.type) {
 	case INVALID: break;
-	EACH_PRIMITIVE_TYPE_OR_COMPOUND(AnyShape, SWITCH_CASES, SIMPLE_CODE_OPERATOR_COPY);
+	EACH_PRIMITIVE_OR_COMPOUND(AnyShape, SWITCH_CASES, SIMPLE_CODE_OPERATOR_COPY);
 	case HEIGHT_MAP:
-		heightMap = new HeightMap<float, uint8_t>(*other.heightMap);
+		heightMap = std::make_unique<HeightMap>(*other.heightMap);
 		break;
 	default:
 		type = INVALID;
@@ -53,9 +41,9 @@ AnyShape::AnyShape(AnyShape &&other)
 	this->trans = other.trans;
 	switch (other.type) {
 	case INVALID: break;
-	EACH_PRIMITIVE_TYPE(AnyShape, SWITCH_CASES, SIMPLE_CODE_OPERATOR_COPY);
+	EACH_PRIMITIVE(AnyShape, SWITCH_CASES, SIMPLE_CODE_OPERATOR_COPY);
 	case HEIGHT_MAP:
-		heightMap = other.heightMap;
+		heightMap = std::move(other.heightMap);
 		other.heightMap = nullptr;
 		break;
 	case COMPOUND:
@@ -75,9 +63,12 @@ AnyShape::AnyShape(const AnyShape &other)
 	switch (other.type) {
 	case INVALID:
 		break;
-	EACH_PRIMITIVE_TYPE_OR_COMPOUND(AnyShape, SWITCH_CASES, SIMPLE_CODE_OPERATOR_COPY);
+	EACH_PRIMITIVE(AnyShape, SWITCH_CASES, SIMPLE_CODE_OPERATOR_COPY);
+	case COMPOUND:
+		compound = other.compound;
+		break;
 	case HEIGHT_MAP:
-		heightMap = new HeightMap<float, uint8_t>(*other.heightMap);
+		heightMap = std::make_unique<HeightMap>(*other.heightMap);
 		break;
 	default:
 		type = INVALID;
@@ -88,7 +79,6 @@ AnyShape::~AnyShape()
 {
 	switch (type) {
 	case HEIGHT_MAP:
-		delete heightMap;
 		heightMap = nullptr;
 		break;
 	case COMPOUND:
@@ -125,7 +115,7 @@ spp::Aabb AnyShape::GetAabb(const Transform &trans) const
 	switch (type) {
 	case INVALID:
 		return spp::AABB_INVALID;
-	EACH_PRIMITIVE_TYPE_OR_COMPOUND_OR_HEIGHTMAP(AnyShape, SWITCH_CASES, CODE_GET_AABB);
+	EACH_SHAPE(AnyShape, SWITCH_CASES, CODE_GET_AABB);
 	default:
 		return spp::AABB_INVALID;
 	}
@@ -137,7 +127,7 @@ bool AnyShape::RayTest(const Transform &trans, const RayInfo &ray, float &near,
 	switch (type) {
 	case INVALID:
 		return false;
-	EACH_PRIMITIVE_TYPE_OR_COMPOUND_OR_HEIGHTMAP(AnyShape, SWITCH_CASES, CODE_RAY_TEST);
+	EACH_SHAPE(AnyShape, SWITCH_CASES, CODE_RAY_TEST);
 	default:
 		return false;
 	}
@@ -150,7 +140,7 @@ bool AnyShape::RayTestLocal(const Transform &trans, const RayInfo &ray,
 	switch (type) {
 	case INVALID:
 		return false;
-	EACH_PRIMITIVE_TYPE_OR_COMPOUND_OR_HEIGHTMAP(AnyShape, SWITCH_CASES, CODE_RAY_TEST_LOCAL);
+	EACH_SHAPE(AnyShape, SWITCH_CASES, CODE_RAY_TEST_LOCAL);
 	default:
 		return false;
 	}
@@ -162,7 +152,7 @@ bool AnyShape::CylinderTestOnGround(const Transform &trans, const Cylinder &cyl,
 	switch (type) {
 	case INVALID:
 		return false;
-	EACH_PRIMITIVE_TYPE_OR_COMPOUND_OR_HEIGHTMAP(AnyShape, SWITCH_CASES, CODE_CYLINDER_TEST_ON_GROUND);
+	EACH_SHAPE(AnyShape, SWITCH_CASES, CODE_CYLINDER_TEST_ON_GROUND);
 	default:
 		return false;
 	}
@@ -177,7 +167,7 @@ bool AnyShape::CylinderTestMovement(const Transform &trans,
 	switch (type) {
 	case INVALID:
 		return false;
-	EACH_PRIMITIVE_TYPE_OR_COMPOUND_OR_HEIGHTMAP(AnyShape, SWITCH_CASES, CODE_CYLINDER_TEST_MOVEMENT);
+	EACH_SHAPE(AnyShape, SWITCH_CASES, CODE_CYLINDER_TEST_MOVEMENT);
 	default:
 		return false;
 	}

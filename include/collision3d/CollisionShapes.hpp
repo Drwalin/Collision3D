@@ -9,6 +9,8 @@
 
 #include "HeightMapUtil.hpp"
 #include "CollisionAlgorithms.hpp"
+#include "AnyShapeMacros.hpp"
+#include "ForwardDeclarations.hpp"
 
 namespace Collision3D
 {
@@ -79,13 +81,16 @@ struct VerticalTriangle {
 };
 
 // Origin at center bottom of AABB
-template <typename T, typename MT> struct HeightMap {
+struct HeightMap {
 	glm::vec3 size;
 	glm::vec3 halfSize;
 	glm::vec3 scale;	// .x === .z
 	glm::vec3 invScale; // 1 / scale
 	int width;
 	int height;
+	
+	using T = float;
+	using MT = uint8_t;
 
 	// should mean > 46 degree
 	T maxDh1;
@@ -134,62 +139,32 @@ template <typename T, typename MT> struct HeightMap {
 	// Treting cylinder as point at it's origin
 	COLLISION_SHAPE_METHODS_DECLARATION()
 };
-extern template struct HeightMap<int8_t, uint8_t>;
-extern template struct HeightMap<uint8_t, uint8_t>;
-extern template struct HeightMap<int16_t, uint8_t>;
-extern template struct HeightMap<uint16_t, uint8_t>;
-extern template struct HeightMap<int32_t, uint8_t>;
-extern template struct HeightMap<uint32_t, uint8_t>;
-extern template struct HeightMap<float, uint8_t>;
 
-// Origin at base
-struct VerticalCappedCone {
-	float baseRadius;
-	float topRadius;
-	float height;
-
-	COLLISION_SHAPE_METHODS_DECLARATION()
+enum TypesShared : uint8_t {
+	INVALID = 0,
+	VERTBOX = 1,
+	CYLINDER = 2,
+	SPHERE = 3,
+	RAMP_RECTANGLE = 4,
+	VERTICAL_TRIANGLE = 5,
+	RAMP_TRIANGLE = 6,
+	HEIGHT_MAP = 62,
+	COMPOUND = 63,
 };
 
 struct AnyPrimitive {
 	union {
-		VertBox vertBox;
-		Cylinder cylinder;
-		Sphere sphere;
-		RampRectangle rampRectangle;
-		VerticalTriangle vertTriangle;
-		VerticalCappedCone cappedCone;
-		RampTriangle rampTriangle;
+		EACH_PRIMITIVE(AnyPrimitive, CODE_UNION_ANY_PRIMITIVE, EMPTY_CODE)
 	};
 
 	Transform trans;
 
 	enum Type : uint8_t {
 		INVALID = 0,
-		VERTBOX = 1,
-		CYLINDER = 2,
-		SPHERE = 3,
-		RAMP_RECTANGLE = 4,
-		VERTICAL_TRIANGLE = 5,
-		CAPPED_CONE = 6,
-		RAMP_TRIANGLE = 7,
+		EACH_PRIMITIVE(AnyPrimitive, CODE_ENUM_VALUES, EMPTY_CODE)
 	} type = INVALID;
 
-	AnyPrimitive(VertBox vertBox, Transform trans = {});
-	AnyPrimitive(Cylinder cylinder, Transform trans = {});
-	AnyPrimitive(Sphere sphere, Transform trans = {});
-	AnyPrimitive(RampRectangle rampRectangle, Transform trans = {});
-	AnyPrimitive(VerticalTriangle vertTriangle, Transform trans = {});
-	AnyPrimitive(VerticalCappedCone cappedCone, Transform trans = {});
-	AnyPrimitive(RampTriangle rampTriangle, Transform trans = {});
-
-	AnyPrimitive &operator=(VertBox vertBox);
-	AnyPrimitive &operator=(Cylinder cylinder);
-	AnyPrimitive &operator=(Sphere sphere);
-	AnyPrimitive &operator=(RampRectangle rampRectangle);
-	AnyPrimitive &operator=(VerticalTriangle vertTriangle);
-	AnyPrimitive &operator=(VerticalCappedCone cappedCone);
-	AnyPrimitive &operator=(RampTriangle rampTriangle);
+	EACH_PRIMITIVE(AnyPrimitive, CODE_CONSTRUCTORS_MOVE, EMPTY_CODE)
 
 	AnyPrimitive() = default;
 
@@ -222,51 +197,19 @@ struct CompoundPrimitive {
 
 struct AnyShape {
 	union {
-		VertBox vertBox;
-		Cylinder cylinder;
-		Sphere sphere;
-		RampRectangle rampRectangle;
-		VerticalTriangle vertTriangle;
-		VerticalCappedCone cappedCone;
-		RampTriangle rampTriangle;
-		std::unique_ptr<HeightMap<float, uint8_t>> heightMap;
-		CompoundPrimitive compound;
+		EACH_PRIMITIVE_OR_COMPOUND(AnyShape, CODE_UNION_ANY_PRIMITIVE,
+								   EMPTY_CODE)
+		std::unique_ptr<HeightMap> heightMap;
 	};
 
 	Transform trans;
 
 	enum Type : uint8_t {
 		INVALID = 0,
-		VERTBOX = 1,
-		CYLINDER = 2,
-		SPHERE = 3,
-		RAMP_RECTANGLE = 4,
-		VERTICAL_TRIANGLE = 5,
-		CAPPED_CONE = 6,
-		RAMP_TRIANGLE = 7,
-		HEIGHT_MAP = 62,
-		COMPOUND = 63,
+		EACH_SHAPE(AnyShape, CODE_ENUM_VALUES, EMPTY_CODE)
 	} type = INVALID;
 
-	AnyShape(VertBox vertBox, Transform trans = {});
-	AnyShape(Cylinder cylinder, Transform trans = {});
-	AnyShape(Sphere sphere, Transform trans = {});
-	AnyShape(RampRectangle rampRectangle, Transform trans = {});
-	AnyShape(VerticalTriangle vertTriangle, Transform trans = {});
-	AnyShape(VerticalCappedCone cappedCone, Transform trans = {});
-	AnyShape(RampTriangle rampTriangle, Transform trans = {});
-	AnyShape(HeightMap<float, uint8_t> &&heightMap, Transform trans = {});
-	AnyShape(CompoundPrimitive &&compound, Transform trans = {});
-
-	AnyShape &operator=(VertBox vertBox);
-	AnyShape &operator=(Cylinder cylinder);
-	AnyShape &operator=(Sphere sphere);
-	AnyShape &operator=(RampRectangle rampRectangle);
-	AnyShape &operator=(VerticalTriangle vertTriangle);
-	AnyShape &operator=(VerticalCappedCone cappedCone);
-	AnyShape &operator=(RampTriangle rampTriangle);
-	AnyShape &operator=(HeightMap<float, uint8_t> &&heightMap);
-	AnyShape &operator=(CompoundPrimitive &&compound);
+	EACH_SHAPE(AnyShape, CODE_CONSTRUCTORS_MOVE, EMPTY_CODE)
 
 	AnyShape();
 
