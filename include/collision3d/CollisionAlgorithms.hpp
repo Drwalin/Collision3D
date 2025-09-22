@@ -18,10 +18,9 @@ using namespace spp;
 
 struct Cylinder;
 
-void TestPlane(glm::vec3 normal, float d, const RayInfo &ray, float &t,
-			   bool &startsInFront, bool &isParallel);
 bool TestPlaneIterational(glm::vec3 normal, float d, const RayInfo &ray,
-						  float &near, float &far, bool &useNormal);
+						  float &near, float &far, int &frontNormal,
+						  int &backNormal, int id);
 } // namespace Collision3D
 
 #define COLLISION_SHAPE_METHODS_DECLARATION()                                  \
@@ -37,3 +36,8 @@ bool TestPlaneIterational(glm::vec3 normal, float d, const RayInfo &ray,
 		const;                                                                 \
 	bool CylinderTestOnGround(const Transform &trans, const Cylinder &cyl,     \
 							  glm::vec3 pos, float &offsetHeight) const;
+
+#define CYLINDER_TEST_ON_GROUND_ASSUME_COLLISION2D()                           \
+	void CylinderTestOnGroundAssumeCollision2D(                                \
+		const Transform &trans, const Cylinder &cyl, glm::vec3 pos,            \
+		float &offsetHeight) const;

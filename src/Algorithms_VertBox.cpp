@@ -127,7 +127,7 @@ bool VertBox::CylinderTestOnGround(const Transform &trans, const Cylinder &cyl,
 								   glm::vec3 pos, float &offsetHeight) const
 {
 	pos = trans.ToLocal(pos);
-	if (pos.x > halfExtents.x || pos.z > halfExtents.y) {
+	if (fabs(pos.x) > halfExtents.x || fabs(pos.z) > halfExtents.y) {
 		return false;
 	}
 	CylinderTestOnGroundAssumeCollision2D(trans, cyl, pos, offsetHeight);

@@ -8,9 +8,8 @@ namespace Collision3D
 {
 using namespace spp;
 
-template <typename T, typename MT>
-void HeightMap<T, MT>::InitSet(int width, int height, const glm::vec3 &scale,
-							   const glm::vec3 &size, T *heights, MT *materials)
+void HeightMap::InitSet(int width, int height, const glm::vec3 &scale,
+						const glm::vec3 &size, T *heights, MT *materials)
 {
 	InitValues(width, height, scale, size);
 	material.heights.clear();
@@ -19,9 +18,8 @@ void HeightMap<T, MT>::InitSet(int width, int height, const glm::vec3 &scale,
 	GenerateMipmap();
 }
 
-template <typename T, typename MT>
-void HeightMap<T, MT>::InitValues(int width, int height, const glm::vec3 &scale,
-								  const glm::vec3 &size)
+void HeightMap::InitValues(int width, int height, const glm::vec3 &scale,
+						   const glm::vec3 &size)
 {
 	halfSize = size / 2.0f;
 	invScale = scale;
@@ -32,11 +30,10 @@ void HeightMap<T, MT>::InitValues(int width, int height, const glm::vec3 &scale,
 	material.width = width;
 }
 
-template <typename T, typename MT>
 template <bool TOP_ELSE_DOWN>
-bool HeightMap<T, MT>::TriangleRayTest(T h00, T hxy, T h11, int x, int z,
-									   const RayInfo &localRay, float &near,
-									   glm::vec3 &localNormalUnnormalised) const
+bool HeightMap::TriangleRayTest(T h00, T hxy, T h11, int x, int z,
+								const RayInfo &localRay, float &near,
+								glm::vec3 &localNormalUnnormalised) const
 {
 	assert(x >= 0 || z >= 0 || x + 1 < width || z + 1 < height);
 	const glm::vec3 v0{x, h00, z};
@@ -82,23 +79,20 @@ bool HeightMap<T, MT>::TriangleRayTest(T h00, T hxy, T h11, int x, int z,
 	return true;
 }
 
-template <typename T, typename MT>
-spp::Aabb HeightMap<T, MT>::GetAabb(const Transform &trans) const
+spp::Aabb HeightMap::GetAabb(const Transform &trans) const
 {
 	return VertBox{halfSize}.GetAabb(trans);
 }
 
-template <typename T, typename MT>
-bool HeightMap<T, MT>::RayTest(const Transform &trans, const RayInfo &ray,
-							   float &near, glm::vec3 &normal) const
+bool HeightMap::RayTest(const Transform &trans, const RayInfo &ray, float &near,
+						glm::vec3 &normal) const
 {
 	return RayTestLocal(trans, ray, trans.ToLocal(ray), near, normal);
 }
 
-template <typename T, typename MT>
-bool HeightMap<T, MT>::RayTestLocal(const Transform &trans, const RayInfo &ray,
-									const RayInfo &rayLocal, float &near,
-									glm::vec3 &normal) const
+bool HeightMap::RayTestLocal(const Transform &trans, const RayInfo &ray,
+							 const RayInfo &rayLocal, float &near,
+							 glm::vec3 &normal) const
 {
 	near = 1.0f;
 	const int depth = mipmap.size() - 1;
@@ -137,11 +131,10 @@ bool HeightMap<T, MT>::RayTestLocal(const Transform &trans, const RayInfo &ray,
 	return true;
 }
 
-template <typename T, typename MT>
 template <bool SAFE_X, bool SAFE_Z, bool SIGN_DIR_X, bool SIGN_DIR_Z>
-bool HeightMap<T, MT>::RayTestLocalNode(const RayInfo &rayLocal, float &near,
-										glm::vec3 &normal, int depth, int x,
-										int z) const
+bool HeightMap::RayTestLocalNode(const RayInfo &rayLocal, float &near,
+								 glm::vec3 &normal, int depth, int x,
+								 int z) const
 {
 	assert(depth >= 0);
 	assert(depth < mipmap.size());
@@ -214,12 +207,10 @@ bool HeightMap<T, MT>::RayTestLocalNode(const RayInfo &rayLocal, float &near,
 #undef __COL_RTLNCO
 }
 
-template <typename T, typename MT>
 template <bool SAFE_X, bool SAFE_Z, bool SIGN_DIR_X, bool SIGN_DIR_Z>
-bool HeightMap<T, MT>::RayTestLocalNodeCallOrdered(const RayInfo &rayLocal,
-												   float &near,
-												   glm::vec3 &normal, int depth,
-												   int x, int z) const
+bool HeightMap::RayTestLocalNodeCallOrdered(const RayInfo &rayLocal,
+											float &near, glm::vec3 &normal,
+											int depth, int x, int z) const
 {
 	bool res = false;
 #define __COL_RTLN(DX, DZ)                                                     \
@@ -252,10 +243,9 @@ bool HeightMap<T, MT>::RayTestLocalNodeCallOrdered(const RayInfo &rayLocal,
 	return res;
 }
 
-template <typename T, typename MT>
-bool HeightMap<T, MT>::CylinderTestOnGround(const Transform &trans,
-											const Cylinder &cyl, glm::vec3 pos,
-											float &offsetHeight) const
+bool HeightMap::CylinderTestOnGround(const Transform &trans,
+									 const Cylinder &cyl, glm::vec3 pos,
+									 float &offsetHeight) const
 {
 	pos = trans.ToLocal(pos) * invScale;
 	int x = pos.x;
@@ -313,12 +303,11 @@ bool HeightMap<T, MT>::CylinderTestOnGround(const Transform &trans,
 	}
 }
 
-template <typename T, typename MT>
-bool HeightMap<T, MT>::CylinderTestMovement(const Transform &trans,
-											float &validMovementFactor,
-											const Cylinder &cyl,
-											const RayInfo &movementRay,
-											glm::vec3 &normal) const
+bool HeightMap::CylinderTestMovement(const Transform &trans,
+									 float &validMovementFactor,
+									 const Cylinder &cyl,
+									 const RayInfo &movementRay,
+									 glm::vec3 &normal) const
 {
 	if (RayTest(trans, movementRay, validMovementFactor, normal)) {
 		return true;
@@ -328,7 +317,7 @@ bool HeightMap<T, MT>::CylinderTestMovement(const Transform &trans,
 	}
 }
 
-template <typename T, typename MT> void HeightMap<T, MT>::GenerateMipmap()
+void HeightMap::GenerateMipmap()
 {
 	for (int depth = 1;; ++depth) {
 		const auto &prev = mipmap[depth - 1];
@@ -357,8 +346,7 @@ template <typename T, typename MT> void HeightMap<T, MT>::GenerateMipmap()
 	}
 }
 
-template <typename T, typename MT>
-void HeightMap<T, MT>::Update(int x, int y, T value)
+void HeightMap::Update(int x, int y, T value)
 {
 	for (int i = 0; i < mipmap.size(); ++i) {
 		assert(x < mipmap[i].width && y < mipmap[i].height);
@@ -371,8 +359,7 @@ void HeightMap<T, MT>::Update(int x, int y, T value)
 	}
 }
 
-template <typename T, typename MT>
-T HeightMap<T, MT>::GetMax2x2(const Matrix<T> &mat, int x, int y) const
+HeightMap::T HeightMap::GetMax2x2(const Matrix<T> &mat, int x, int y) const
 {
 	const int x1 = x + 1;
 	const int y1 = y + 1;
@@ -392,13 +379,4 @@ T HeightMap<T, MT>::GetMax2x2(const Matrix<T> &mat, int x, int y) const
 	}
 	return v;
 }
-
-template struct HeightMap<int8_t, uint8_t>;
-template struct HeightMap<uint8_t, uint8_t>;
-template struct HeightMap<int16_t, uint8_t>;
-template struct HeightMap<uint16_t, uint8_t>;
-template struct HeightMap<int32_t, uint8_t>;
-template struct HeightMap<uint32_t, uint8_t>;
-template struct HeightMap<float, uint8_t>;
-
 } // namespace Collision3D

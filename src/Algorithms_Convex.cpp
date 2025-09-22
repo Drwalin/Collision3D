@@ -1,74 +1,43 @@
-// This file is part of Collision3D.
-// Copyright (c) 2025 Marek Zalewski aka Drwalin
-// You should have received a copy of the MIT License along with this program.
+// The following function is based on GraphicsGems code:
+// https://github.com/erich666/GraphicsGems/blob/master/gemsii/RayCPhdron.c
+// Based on code by Eric Haines, erich@eye.com
 
 #include "../include/collision3d/CollisionAlgorithms.hpp"
 
 namespace Collision3D
 {
-void TestPlane(glm::vec3 normal, float d, const RayInfo &ray, float &t,
-			   bool &startsInFront, bool &isParallel)
-{
-	constexpr float EPS = 0.00000001f;
-
-	const float a = glm::dot(ray.dir, normal);
-	const float p = glm::dot(ray.start, normal);
-
-	startsInFront = p > d + EPS;
-
-	if (a <= -EPS && a >= EPS) {
-		isParallel = false;
-		// ray not parallel to plane
-		t = (d - p) / a;
-		if (a < 0.0f) {
-			// ray points toward plane
-		} else { // (a > 0.of)
-				 // ray points outward plane
-		}
-	} else {
-		isParallel = true;
-	}
-}
-
 bool TestPlaneIterational(glm::vec3 normal, float d, const RayInfo &ray,
-						  float &near, float &far, bool &useNormal)
+						  float &near, float &far, int &frontNormal, int &backNormal, int id)
 {
-	float t = +1e9;
-	bool startsInFront = false;
-	bool isParallel = false;
-	TestPlane(normal, d, ray, t, startsInFront, isParallel);
-
-	if (isParallel) {
-		if (startsInFront) {
-			// is parallel and starts outside of object
-			return false; // case 5
-		} else {
-			// is parallel inside of object
-			return true; // case 6
-		}
+	/* Compute intersection point T and sidedness */
+	float vd = glm::dot(ray.dir, normal);
+	float vn = glm::dot(ray.start, normal) - d;
+	if (vd == 0.0) {
+		/* ray is parallel to plane - check if ray origin is inside plane's
+		   half-space */
+		if (vn > 0.0)
+			/* ray origin is outside half-space */
+			return false;
 	} else {
-		if (startsInFront) {
-			if (t < 0) {
-				// face away from this plane being outside
-				return false; // case 1
-			} else {
-				if (near < t) {
-					near = t;
-					useNormal = true;
-				}
-				return true; // case 2
+		/* ray not parallel - get distance to plane */
+		float t = -vn / vd;
+		if (vd < 0.0) {
+			/* front face - T is a near point */
+			if (t > far)
+				return false;
+			if (t > near) {
+				/* hit near face, update normal */
+				frontNormal = id;
+				near = t;
 			}
 		} else {
-			if (t < 0) {
-				if (near < t) {
-					near = t;
-					useNormal = true;
-				}
-				return true; // case 4
-			} else {
-				// is inside, ignore
-				far = std::min(far, t);
-				return true; // case 3
+			/* back face - T is a far point */
+			if (t < near)
+				return false;
+			if (t < far) {
+				/* hit far face, update normal */
+				backNormal = id;
+				far = t;
 			}
 		}
 	}

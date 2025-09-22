@@ -39,37 +39,36 @@ bool RampRectangle::RayTestLocal(const Transform &trans, const RayInfo &ray,
 							{-1, 0, 0}, no,		   -no};
 	const float ofn = halfThickness * no.y;
 	const float offs[6] = {0, halfWidth, depth, halfWidth, ofn, ofn};
+	int frontNormalId = -1, backNormalId = -1;
 
-	near = -1e9;
-	float far = 1e9;
+	near = -1e9f;
+	float far = 1e9f;
 
 	for (int i = 0; i < 6; ++i) {
-		bool useNormal = false;
 		if (TestPlaneIterational(n[i], offs[i], rayLocal, near, far,
-								 useNormal)) {
-			if (useNormal) {
-				normal = n[i];
-			}
-		} else {
+								 frontNormalId, backNormalId, i) == false) {
 			return false;
 		}
 	}
 
-	if (near >= far) {
-		return false;
-	}
-
-	if (far <= 0.0f) {
-		return false;
-	}
-
-	if (near < 0.0f) {
-		near = 0.0f;
-		return true;
-	} else if (near > 1) {
-		return false;
+	if (near >= 0.0f) {
+		/* outside, hitting front face */
+		if (near <= 1.0f) {
+			normal = n[frontNormalId];
+			return true; // frontface
+		} else {
+			return false;
+		}
 	} else {
-		return true;
+		if (far < near) {
+			/* inside, hitting back face */
+			normal = n[backNormalId];
+			near = 0.0f; // near = far;
+			return true; // backface
+		} else {
+			/* inside, but back face beyond tmax */
+			return false; // missed
+		}
 	}
 }
 
@@ -77,15 +76,27 @@ bool RampRectangle::CylinderTestOnGround(const Transform &trans,
 										 const Cylinder &cyl, glm::vec3 pos,
 										 float &offsetHeight) const
 {
-	float r2 = radius + cyl.radius;
-	r2 = r2 * r2;
-	glm::vec2 diff = {pos.x - trans.pos.x, pos.y - trans.pos.y};
-	if (r2 >= glm::length2(diff)) {
-		RampRectangleTestOnGroundAssumeCollision2D(trans, cyl, pos,
-												   offsetHeight);
-		return true;
+	if (fabs(height) > depth) {
+		return false;
 	}
-	return false;
+
+	const glm::vec3 localPos = trans.ToLocal(pos);
+
+	if (fabs(localPos.x) > halfWidth) {
+		return false;
+	}
+
+	if (localPos.z < 0) {
+		return false;
+	}
+
+	if (localPos.z > depth) {
+		return false;
+	}
+
+	const float y = ((height + halfThickness) * localPos.z) / depth;
+	offsetHeight = localPos.y - y;
+	return true;
 }
 
 bool RampRectangle::CylinderTestMovement(const Transform &_trans,

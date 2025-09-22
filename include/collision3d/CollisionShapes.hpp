@@ -19,12 +19,9 @@ namespace Collision3D
 struct VertBox {
 	glm::vec3 halfExtents;
 
-	// Collision treats cylinder as aligned square prism to tran
+	// Collision treats cylinder as aligned square prism to trans
 	COLLISION_SHAPE_METHODS_DECLARATION()
-	void CylinderTestOnGroundAssumeCollision2D(const Transform &trans,
-											   const Cylinder &cyl,
-											   glm::vec3 pos,
-											   float &offsetHeight) const;
+	CYLINDER_TEST_ON_GROUND_ASSUME_COLLISION2D()
 };
 
 // Origin at center of base
@@ -34,10 +31,7 @@ struct Cylinder {
 	float radius;
 
 	COLLISION_SHAPE_METHODS_DECLARATION()
-	void CylinderTestOnGroundAssumeCollision2D(const Transform &trans,
-											   const Cylinder &cyl,
-											   glm::vec3 pos,
-											   float &offsetHeight) const;
+	CYLINDER_TEST_ON_GROUND_ASSUME_COLLISION2D()
 };
 
 // Origin at center
