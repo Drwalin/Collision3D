@@ -2,20 +2,15 @@
 // Copyright (c) 2025 Marek Zalewski aka Drwalin
 // You should have received a copy of the MIT License along with this program.
 
-#include "../include/collision3d/CollisionShapes.hpp"
+#include "../include/collision3d/CollisionShapes_AnyOrCompound.hpp"
 	
 namespace Collision3D
 {
 using namespace spp;
 
-EACH_PRIMITIVE_OR_COMPOUND(AnyShape, CONSTRUCTOR_SHAPE, EMPTY_CODE)
-AnyShape::AnyShape(HeightMap &&heightMap, Transform trans)
-	: heightMap(new HeightMap(std::move(heightMap))),
-	  trans(trans), type(HEIGHT_MAP) {}
+EACH_SHAPE(AnyShape, CONSTRUCTOR_SHAPE, EMPTY_CODE)
 
-EACH_PRIMITIVE(AnyShape, OPERATOR_SET_SHAPE, EMPTY_CODE)
-OPERATOR_SET_SHAPE(AnyShape, {}, ->, HeightMap, heightMap, HEIGHT_MAP)
-OPERATOR_SET_SHAPE(AnyShape, {}, ., CompoundPrimitive, compound, COMPOUND)
+EACH_SHAPE(AnyShape, OPERATOR_SET_SHAPE, EMPTY_CODE)
 	
 
 AnyShape::AnyShape() { type = INVALID; }
@@ -26,10 +21,7 @@ AnyShape::AnyShape(AnyShape &other)
 	this->trans = other.trans;
 	switch (other.type) {
 	case INVALID: break;
-	EACH_PRIMITIVE_OR_COMPOUND(AnyShape, SWITCH_CASES, SIMPLE_CODE_OPERATOR_COPY);
-	case HEIGHT_MAP:
-		heightMap = std::make_unique<HeightMap>(*other.heightMap);
-		break;
+	EACH_SHAPE(AnyShape, SWITCH_CASES, SIMPLE_CODE_DO_COPY);
 	default:
 		type = INVALID;
 	}
@@ -41,15 +33,7 @@ AnyShape::AnyShape(AnyShape &&other)
 	this->trans = other.trans;
 	switch (other.type) {
 	case INVALID: break;
-	EACH_PRIMITIVE(AnyShape, SWITCH_CASES, SIMPLE_CODE_OPERATOR_COPY);
-	case HEIGHT_MAP:
-		heightMap = std::move(other.heightMap);
-		other.heightMap = nullptr;
-		break;
-	case COMPOUND:
-		compound = std::move(other.compound);
-		other.compound.~CompoundPrimitive();
-		break;
+	EACH_SHAPE(AnyShape, SWITCH_CASES, SIMPLE_CODE_DO_MOVE);
 	default:
 		type = INVALID;
 	}
@@ -63,13 +47,7 @@ AnyShape::AnyShape(const AnyShape &other)
 	switch (other.type) {
 	case INVALID:
 		break;
-	EACH_PRIMITIVE(AnyShape, SWITCH_CASES, SIMPLE_CODE_OPERATOR_COPY);
-	case COMPOUND:
-		compound = other.compound;
-		break;
-	case HEIGHT_MAP:
-		heightMap = std::make_unique<HeightMap>(*other.heightMap);
-		break;
+	EACH_SHAPE(AnyShape, SWITCH_CASES, SIMPLE_CODE_DO_COPY);
 	default:
 		type = INVALID;
 	}
@@ -78,12 +56,7 @@ AnyShape::AnyShape(const AnyShape &other)
 AnyShape::~AnyShape()
 {
 	switch (type) {
-	case HEIGHT_MAP:
-		heightMap = nullptr;
-		break;
-	case COMPOUND:
-		compound.~CompoundPrimitive();
-		break;
+	EACH_SHAPE(AnyShape, SWITCH_CASES, SIMPLE_CODE_CALL_DESTRUCTOR);
 	default:
 	}
 	type = INVALID;

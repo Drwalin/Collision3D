@@ -54,16 +54,16 @@ struct RampTriangle {
 	COLLISION_SHAPE_METHODS_DECLARATION()
 };
 
-struct Triangle {
-	glm::vec3 a, b, c;
-
-	COLLISION_SHAPE_METHODS_DECLARATION()
-};
-
 // Origin at p0
 // Normal without roatation: z=1
 struct VerticalTriangle {
 	glm::vec2 p1, p2;
+
+	COLLISION_SHAPE_METHODS_DECLARATION()
+};
+
+struct Triangle {
+	glm::vec3 a, b, c;
 
 	COLLISION_SHAPE_METHODS_DECLARATION()
 };

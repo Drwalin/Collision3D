@@ -5,6 +5,7 @@
 #pragma once
 
 #include "CollisionShapes_Primitives.hpp"
+#include "CollisionShapes_HeightMap.hpp"
 
 #define EACH_PRIMITIVE(CLASS, MACRO, CODE)                                     \
 	MACRO(CLASS, CODE, ., VertBox, vertBox, VERTBOX)                           \
@@ -34,8 +35,14 @@ CLASS::CLASS(SHAPE &&NAME, Transform trans) \
 		return *this;                                                          \
 	}
 
-#define SIMPLE_CODE_OPERATOR_COPY(SHAPE, NAME, INDEX, DEREF)                   \
+#define SIMPLE_CODE_DO_COPY(SHAPE, NAME, INDEX, DEREF)                         \
 	NAME = other.NAME;
+
+#define SIMPLE_CODE_DO_MOVE(SHAPE, NAME, INDEX, DEREF)                         \
+	NAME = std::move(other.NAME);
+
+#define SIMPLE_CODE_CALL_DESTRUCTOR(SHAPE, NAME, INDEX, DEREF)                 \
+	NAME.~SHAPE();
 
 #define CODE_GET_AABB(SHAPE, NAME, INDEX, DEREF) \
 		return NAME DEREF GetAabb(trans * this->trans);
@@ -52,18 +59,17 @@ CLASS::CLASS(SHAPE &&NAME, Transform trans) \
 #define CODE_CYLINDER_TEST_MOVEMENT(SHAPE, NAME, INDEX, DEREF) \
 		return NAME DEREF CylinderTestMovement(trans * this->trans, validMovementFactor, cyl, movementRay, normal);
 
-#define EACH_PRIMITIVE_OR_COMPOUND(CLASS, MACRO, CODE)                         \
+#define EACH_SHAPE(CLASS, MACRO, CODE)                                         \
 	EACH_PRIMITIVE(CLASS, MACRO, CODE)                                         \
-	MACRO(CLASS, CODE, ., CompoundPrimitive, compound, COMPOUND)
+	MACRO(CLASS, CODE, ., CompoundPrimitive, compound, COMPOUND)               \
+	MACRO(CLASS, CODE, ., HeightMap, heightMap, HEIGHT_MAP)
 
-#define EACH_SHAPE(CLASS, MACRO, CODE)            \
-	EACH_PRIMITIVE_OR_COMPOUND(CLASS, MACRO, CODE)                             \
-	MACRO(CLASS, CODE, ->, HeightMap, heightMap, HEIGHT_MAP)
+#define DEFINITION_ENUM_VALUES(CLASS, CODE, DEREF, SHAPE, NAME, INDEX)               \
+	INDEX = TypesShared::Enum::INDEX,
 
-#define CODE_ENUM_VALUES(CLASS, CODE, DEREF, SHAPE, NAME, INDEX)               \
-	INDEX = TypesShared::INDEX,
-#define CODE_UNION_ANY_PRIMITIVE(CLASS, CODE, DEREF, SHAPE, NAME, INDEX)       \
+#define DECLARATION_UNION_ANY_PRIMITIVE(CLASS, CODE, DEREF, SHAPE, NAME, INDEX)       \
 	SHAPE NAME;
-#define CODE_CONSTRUCTORS_MOVE(CLASS, CODE, DEREF, SHAPE, NAME, INDEX)  \
+
+#define DECLARATION_CONSTRUCTORS_MOVE(CLASS, CODE, DEREF, SHAPE, NAME, INDEX)  \
 	CLASS(SHAPE &&NAME, Transform trans = {});                                 \
 	CLASS &operator=(SHAPE &&NAME);

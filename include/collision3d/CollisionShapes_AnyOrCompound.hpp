@@ -5,16 +5,16 @@
 #pragma once
 
 #include <vector>
-#include <memory>
 
+#include "ForwardDeclarations.hpp"
 #include "CollisionAlgorithms.hpp"
 #include "AnyShapeMacros.hpp"
-#include "ForwardDeclarations.hpp"
 
 namespace Collision3D
 {
-
-enum TypesShared : uint8_t {
+namespace TypesShared
+{
+enum Enum : uint8_t {
 	INVALID = 0,
 	VERTBOX = 1,
 	CYLINDER = 2,
@@ -25,20 +25,22 @@ enum TypesShared : uint8_t {
 	HEIGHT_MAP = 62,
 	COMPOUND = 63,
 };
+}
 
 struct AnyPrimitive {
 	union {
-		EACH_PRIMITIVE(AnyPrimitive, CODE_UNION_ANY_PRIMITIVE, EMPTY_CODE)
+		EACH_PRIMITIVE(AnyPrimitive, DECLARATION_UNION_ANY_PRIMITIVE,
+					   EMPTY_CODE)
 	};
 
 	Transform trans;
 
 	enum Type : uint8_t {
 		INVALID = 0,
-		EACH_PRIMITIVE(AnyPrimitive, CODE_ENUM_VALUES, EMPTY_CODE)
+		EACH_PRIMITIVE(AnyPrimitive, DEFINITION_ENUM_VALUES, EMPTY_CODE)
 	} type = INVALID;
 
-	EACH_PRIMITIVE(AnyPrimitive, CODE_CONSTRUCTORS_MOVE, EMPTY_CODE)
+	EACH_PRIMITIVE(AnyPrimitive, DECLARATION_CONSTRUCTORS_MOVE, EMPTY_CODE)
 
 	AnyPrimitive() = default;
 
@@ -71,19 +73,17 @@ struct CompoundPrimitive {
 
 struct AnyShape {
 	union {
-		EACH_PRIMITIVE_OR_COMPOUND(AnyShape, CODE_UNION_ANY_PRIMITIVE,
-								   EMPTY_CODE)
-		std::unique_ptr<HeightMap> heightMap;
+		EACH_SHAPE(AnyShape, DECLARATION_UNION_ANY_PRIMITIVE, EMPTY_CODE)
 	};
 
 	Transform trans;
 
 	enum Type : uint8_t {
 		INVALID = 0,
-		EACH_SHAPE(AnyShape, CODE_ENUM_VALUES, EMPTY_CODE)
+		EACH_SHAPE(AnyShape, DEFINITION_ENUM_VALUES, EMPTY_CODE)
 	} type = INVALID;
 
-	EACH_SHAPE(AnyShape, CODE_CONSTRUCTORS_MOVE, EMPTY_CODE)
+	EACH_SHAPE(AnyShape, DECLARATION_CONSTRUCTORS_MOVE, EMPTY_CODE)
 
 	AnyShape();
 

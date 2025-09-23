@@ -2,7 +2,7 @@
 // Copyright (c) 2025 Marek Zalewski aka Drwalin
 // You should have received a copy of the MIT License along with this program.
 
-#include "../include/collision3d/CollisionShapes.hpp"
+#include "../include/collision3d/CollisionShapes_AnyOrCompound.hpp"
 
 namespace Collision3D
 {

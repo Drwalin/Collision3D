@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "HeightMapUtil.hpp"
 #include "CollisionAlgorithms.hpp"
 #include "ForwardDeclarations.hpp"
 
@@ -12,62 +11,77 @@ namespace Collision3D
 {
 // Origin at center bottom of AABB
 struct HeightMap {
-	using T = float;
-	using MT = uint8_t;
+	using Type = float;
+	using MaterialType = uint8_t;
 
-	HeightMap() : header(nullptr) {}
+	HeightMap();
+	~HeightMap();
 
-	HeightMap(HeightMap &other) = default;
-	HeightMap(HeightMap &&other) = default;
-	HeightMap(const HeightMap &other) = default;
+	HeightMap(HeightMap &other);
+	HeightMap(HeightMap &&other);
+	HeightMap(const HeightMap &other);
 
-	HeightMap &operator=(HeightMap &other) = default;
-	HeightMap &operator=(HeightMap &&other) = default;
-	HeightMap &operator=(const HeightMap &other) = default;
-	
+	HeightMap &operator=(HeightMap &other);
+	HeightMap &operator=(HeightMap &&other);
+	HeightMap &operator=(const HeightMap &other);
+
 	void Init(int width, int height);
 
 	// Treating cylinder as point at it's origin
 	COLLISION_SHAPE_METHODS_DECLARATION()
 
-private:
+	void Update(glm::ivec2 coord, Type value);
+	Type Get(int level, glm::ivec2 coord) const;
+
+	void SetMaterial(glm::ivec2 coord, MaterialType value);
+	MaterialType GetMaterial(int level, glm::ivec2 coord) const;
+
+	glm::ivec2 ConvertGlobalPosToCoord(const Transform &trans,
+									   glm::vec3 pos) const;
+
+public:
 	struct Header {
-		const int width;
-		const int height;
+		size_t bytes;
+
+		float minimum = 1e9;
+		int levels = 0;
 
 		glm::vec3 size;
 		glm::vec3 halfSize;
 		glm::vec3 scale;	// .x === .z
 		glm::vec3 invScale; // 1 / scale
 
-		// should mean > 46 degree
-		T maxDh1;
-		T maxDh11;
+		// should mean >~ 45 degree for normal for walking on ground
+		Type maxDh1;  // height difference along axes
+		Type maxDh11; // height difference along diagonal
 
+		glm::ivec2 sizes[16];
 		// diagonal is between (x, y) and (x+1, y+1)
-		T *heightsMipmap[16];
-		T *heights;
-		MT *material;
-		
+		Type *heightsMipmap[16];
+		MaterialType *material;
+
 	public:
-		
 		static Header *Allocate(int width, int height);
 
 	public:
-		
-		glm::ivec2 GetClosestPointIfAny(glm::vec2 verticalPos);
+		glm::ivec2 ConvertGlobalPosToCoord(const Transform &trans,
+										   glm::vec3 pos) const;
 
-		void InitSet(int width, int height, const glm::vec3 &scale,
-					 const glm::vec3 &size, T *heights, MT *materials);
+		void Set(const glm::vec3 &scale, const glm::vec3 &size, Type *heights,
+				 MaterialType *materials);
 
-		void InitValues(int width, int height, const glm::vec3 &scale,
-						const glm::vec3 &size);
+		void InitValues(const glm::vec3 &scale, const glm::vec3 &size);
+		void SetNoMimmap(glm::ivec2 coord, Type value);
 		void GenerateMipmap();
-		void Update(int x, int y, T value);
-		T GetMax2x2(const Matrix<T> &mat, int x, int y) const;
+
+		void Update(glm::ivec2 coord, Type value);
+		Type Get(int level, glm::ivec2 coord) const;
+
+		void SetMaterial(glm::ivec2 coord, MaterialType value);
+		MaterialType GetMaterial(int level, glm::ivec2 coord) const;
 
 		template <bool TOP_ELSE_DOWN>
-		bool TriangleRayTest(T h00, T hxy, T h11, int x, int z,
+		bool TriangleRayTest(Type h00, Type hxy, Type h11, int x, int z,
 							 const RayInfo &localRay, float &near,
 							 glm::vec3 &localNormalUnnormalised) const;
 
@@ -75,6 +89,7 @@ private:
 		bool RayTestLocalNode(const RayInfo &rayLocal, float &near,
 							  glm::vec3 &localNormalUnnormalised, int depth,
 							  int x, int z) const;
+
 		template <bool SAFE_X, bool SAFE_Z, bool SIGN_DIR_X, bool SIGN_DIR_Z>
 		bool RayTestLocalNodeCallOrdered(const RayInfo &rayLocal, float &near,
 										 glm::vec3 &localNormalUnnormalised,
@@ -84,5 +99,8 @@ private:
 	};
 
 	Header *header = nullptr;
+
+private:
+	void CopyIntoThis(const HeightMap &src);
 };
 } // namespace Collision3D
