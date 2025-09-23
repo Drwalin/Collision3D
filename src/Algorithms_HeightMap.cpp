@@ -2,11 +2,111 @@
 // Copyright (c) 2025 Marek Zalewski aka Drwalin
 // You should have received a copy of the MIT License along with this program.
 
-#include "../include/collision3d/CollisionShapes.hpp"
+#include <cstring>
+#include <cstdlib>
+
+#include "../include/collision3d/CollisionShapes_HeightMap.hpp"
 
 namespace Collision3D
 {
 using namespace spp;
+
+HeightMap::HeightMap() : header(nullptr) {}
+
+HeightMap::~HeightMap()
+{
+	if (header) {
+		free(header);
+		header = nullptr;
+	}
+}
+
+
+HeightMap::HeightMap(HeightMap &other)
+{
+	assert(!"Shouldn't be used");
+	header = nullptr;
+	CopyIntoThis(other);
+}
+
+HeightMap::HeightMap(HeightMap &&other) : header(other.header)
+{
+	other.header = nullptr;
+}
+
+HeightMap::HeightMap(const HeightMap &other)
+{
+	assert(!"Shouldn't be used");
+	header = nullptr;
+	CopyIntoThis(other);
+}
+
+HeightMap &HeightMap::operator=(HeightMap &other)
+{
+	assert(!"Shouldn't be used");
+	CopyIntoThis(other);
+}
+
+HeightMap &HeightMap::operator=(HeightMap &&other)
+{
+	header = other.header;
+	other.header = nullptr;
+	return *this;
+}
+
+HeightMap &HeightMap::operator=(const HeightMap &other)
+{
+	assert(!"Shouldn't be used");
+	CopyIntoThis(other);
+}
+
+void HeightMap::CopyIntoThis(const HeightMap &other)
+{
+	assert(!"Shouldn't be used");
+	this->~HeightMap();
+
+	if (other.header) {
+		header = (Header*)malloc(other.header->bytes);
+		memcpy(header, other.header, other.header->bytes);
+		size_t diff = ((size_t)header) - ((size_t)other.header);
+		*((size_t*)&(header->material)) += diff;
+		for (int i=0; i<header->levels; ++i) {
+			*((size_t*)&(header->heightsMipmap[i])) += diff;
+		}
+	} else {
+		header = nullptr;
+	}
+}
+
+HeightMap::Header *HeightMap::Header::Allocate(int width, int height)
+{
+	assert(width == height);
+	assert((width & (width - 1)) == 0);
+	
+	Header header;
+	memset(&header, 0, sizeof(Header));
+	int w = width, h = height;
+	size_t bytes = sizeof(Header);
+	for (int i = 0; i < 16 && w && h; ++i, w/=2, h/=2) {
+		header.sizes[i] = {w, h};
+		header.heightsMipmap[i] = (Type *)bytes;
+		const size_t s = w * h * sizeof(Type);
+		bytes += s;
+		++header.levels;
+	}
+	header.material = (MaterialType *)bytes;
+	bytes += width * height * sizeof(MaterialType);
+	header.bytes = bytes;
+
+	Header *ret = new (malloc(bytes)) Header(header);
+
+	for (int i = 0; i < header.levels; ++i) {
+		*((size_t*)&(header.heightsMipmap[i])) +=(size_t)ret;
+	}
+	header.material = (MaterialType *)(((size_t)header.material) + (size_t)ret);
+
+	return ret;
+}
 
 void HeightMap::InitSet(int width, int height, const glm::vec3 &scale,
 						const glm::vec3 &size, T *heights, MT *materials)
