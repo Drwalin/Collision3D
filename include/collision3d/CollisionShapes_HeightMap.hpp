@@ -9,9 +9,8 @@
 
 namespace Collision3D
 {
-// Origin at center bottom of AABB
+// Origin at vertex (0,0) with height=0
 // Assuming there is no lower points than Y=0
-// HeightMap needs to be square with side length 2^X+1
 struct HeightMap {
 	using Type = HeightMap_Type;
 	using MaterialType = HeightMap_MaterialType;
@@ -27,13 +26,13 @@ struct HeightMap {
 	HeightMap &operator=(HeightMap &&other);
 	HeightMap &operator=(const HeightMap &other);
 
-	void Init(int resolution);
+	void Init(glm::ivec2 resolution);
 
 	// Treating cylinder as point at it's origin
 	COLLISION_SHAPE_METHODS_DECLARATION()
 
 	bool Update(glm::ivec2 coord, Type value);
-	Type Get(glm::ivec2 coord, int level) const;
+	Type Get(glm::ivec2 coord) const;
 	
 	const Type *GetHeights() const;
 	Type *AccessHeights();

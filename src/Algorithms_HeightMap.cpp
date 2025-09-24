@@ -66,17 +66,17 @@ void HeightMap::CopyIntoThis(const HeightMap &other)
 	this->~HeightMap();
 
 	if (other.header) {
-		header = (HeightMap_Header*)malloc(other.header->bytes);
+		header = (HeightMap_Header *)malloc(other.header->bytes);
 		memcpy(header, other.header, other.header->bytes);
 		size_t diff = ((size_t)header) - ((size_t)other.header);
-		*((size_t*)&(header->material)) += diff;
-		*((size_t*)&(header->heights)) += diff;
+		*((size_t *)&(header->material)) += diff;
+		*((size_t *)&(header->heights)) += diff;
 	} else {
 		header = nullptr;
 	}
 }
 
-void HeightMap::Init(int resolution)
+void HeightMap::Init(glm::ivec2 resolution)
 {
 	this->~HeightMap();
 	header = HeightMap_Header::Allocate(resolution);
@@ -117,7 +117,8 @@ bool HeightMap::CylinderTestMovement(const Transform &trans,
 									 glm::vec3 &normal) const
 {
 	assert(header);
-	return header->CylinderTestMovement(trans, validMovementFactor, cyl, movementRay, normal);
+	return header->CylinderTestMovement(trans, validMovementFactor, cyl,
+										movementRay, normal);
 }
 
 bool HeightMap::Update(glm::ivec2 coord, Type value)
@@ -126,10 +127,10 @@ bool HeightMap::Update(glm::ivec2 coord, Type value)
 	return header->Update(coord, value);
 }
 
-HeightMap::Type HeightMap::Get(glm::ivec2 coord, int level) const
+HeightMap::Type HeightMap::Get(glm::ivec2 coord) const
 {
 	assert(header);
-	return header->Get<true>(coord, level);
+	return header->Get<true>(coord);
 }
 
 bool HeightMap::SetMaterial(glm::ivec2 coord, MaterialType value)
@@ -145,7 +146,7 @@ HeightMap::MaterialType HeightMap::GetMaterial(glm::ivec2 coord) const
 }
 
 glm::ivec2 HeightMap::ConvertGlobalPosToCoord(const Transform &trans,
-								   glm::vec3 pos) const
+											  glm::vec3 pos) const
 {
 	assert(header);
 	return header->ConvertGlobalPosToCoord(trans, pos);
@@ -175,8 +176,5 @@ HeightMap::MaterialType *HeightMap::AccessMaterial()
 	return header->material;
 }
 
-bool HeightMap::IsValid() const
-{
-	return header;
-}
+bool HeightMap::IsValid() const { return header; }
 } // namespace Collision3D
