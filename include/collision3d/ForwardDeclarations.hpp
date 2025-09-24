@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <cstdint>
+
 namespace Collision3D
 {
 struct VertBox;
@@ -12,7 +14,7 @@ struct Sphere;
 struct Rectangle;
 struct Triangle;
 struct HeightMap;
-struct VerticalCappedCone;
+struct HeightMap_Header;
 
 struct CompoundPrimitive;
 struct AnyShape;
@@ -20,4 +22,7 @@ struct AnyPrimitive;
 
 struct Rotation;
 struct Transform;
+
+using HeightMap_Type = float;
+using HeightMap_MaterialType = uint8_t;
 } // namespace Collision3D
