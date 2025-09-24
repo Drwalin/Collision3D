@@ -14,31 +14,27 @@ spp::Aabb VertBox::GetAabb(const Transform &trans) const
 	if (rot.value >= 120) {
 		rot.value -= 120;
 	}
-	if (rot.value >= 60) {
-		rot.value += 180;
-	}
 
-	glm::vec3 min, max;
+	glm::vec3 min = trans.pos, max = trans.pos;
 	min.y = trans.pos.y;
-	max.y = trans.pos.y + halfExtents.y * 2.0f;
+	max.y += halfExtents.y * 2.0f;
 
-	const glm::vec2 x = rot * glm::vec2{halfExtents.x * 2.0f, 0};
-	const glm::vec2 z = rot * glm::vec2{0, halfExtents.z * 2.0f};
-
-	const glm::vec2 p = {0, 0};
-	const glm::vec2 px = x;
-	const glm::vec2 pz = z;
-	const glm::vec2 pxz = x + z;
-
-	min.x = glm::min(p.x, pz.x);
-	min.z = glm::min(p.y, px.y);
-
-	max.x = glm::max(pxz.x, px.x);
-	max.z = glm::max(pxz.y, pz.y);
-
-	const glm::vec3 half = {halfExtents.x, 0, halfExtents.z};
-
-	return {min + half, max + half};
+	const glm::vec2 x = rot * glm::vec2{halfExtents.x, 0};
+	const glm::vec2 z = rot * glm::vec2{0, halfExtents.z};
+	
+	const glm::vec2 a = glm::abs(x + z);
+	const glm::vec2 b = glm::abs(x - z);
+	const glm::vec2 c = glm::abs(- x + z);
+	const glm::vec2 d = glm::abs(- x - z);
+	
+	const glm::vec2 min2 = glm::max(a, glm::max(b, glm::max(c, d)));
+	
+	min.x -= min2.x;
+	min.z -= min2.y;
+	max.x += min2.x;
+	max.z += min2.y;
+	
+	return {min, max};
 }
 
 static inline bool FastRayTest2(const glm::vec3 min, const glm::vec3 max,

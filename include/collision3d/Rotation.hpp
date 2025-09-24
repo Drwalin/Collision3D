@@ -10,7 +10,7 @@
 namespace Collision3D
 {
 struct Rotation {
-	uint8_t value;
+	uint8_t value = 0;
 
 	inline Rotation inverse() const { return diff({0}, *this); }
 	inline Rotation operator-(int) const { return inverse(); }

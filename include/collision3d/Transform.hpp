@@ -14,7 +14,7 @@ namespace Collision3D
 using namespace spp;
 
 struct Transform {
-	glm::vec3 pos;
+	glm::vec3 pos = {0,0,0};
 	Rotation rot;
 
 	// 	inline Transform inverse() const { return {-pos, rot.inverse()}; }

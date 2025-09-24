@@ -14,7 +14,7 @@ spp::Aabb AnyPrimitive::GetAabb(const Transform &trans) const
 	switch (type) {
 	case INVALID:
 		return spp::AABB_INVALID;
-		EACH_PRIMITIVE(AnyShape, SWITCH_CASES, CODE_GET_AABB);
+		EACH_PRIMITIVE(AnyPrimitive, SWITCH_CASES, CODE_GET_AABB);
 	default:
 		return spp::AABB_INVALID;
 	}
@@ -26,7 +26,7 @@ bool AnyPrimitive::RayTest(const Transform &trans, const RayInfo &ray,
 	switch (type) {
 	case INVALID:
 		return false;
-		EACH_PRIMITIVE(AnyShape, SWITCH_CASES, CODE_RAY_TEST);
+		EACH_PRIMITIVE(AnyPrimitive, SWITCH_CASES, CODE_RAY_TEST);
 	default:
 		return false;
 	}
@@ -45,7 +45,7 @@ bool AnyPrimitive::CylinderTestOnGround(const Transform &trans,
 	switch (type) {
 	case INVALID:
 		return false;
-		EACH_PRIMITIVE(AnyShape, SWITCH_CASES, CODE_CYLINDER_TEST_ON_GROUND);
+		EACH_PRIMITIVE(AnyPrimitive, SWITCH_CASES, CODE_CYLINDER_TEST_ON_GROUND);
 	default:
 		return false;
 	}
@@ -60,7 +60,7 @@ bool AnyPrimitive::CylinderTestMovement(const Transform &trans,
 	switch (type) {
 	case INVALID:
 		return false;
-		EACH_PRIMITIVE(AnyShape, SWITCH_CASES, CODE_CYLINDER_TEST_MOVEMENT);
+		EACH_PRIMITIVE(AnyPrimitive, SWITCH_CASES, CODE_CYLINDER_TEST_MOVEMENT);
 	default:
 		return false;
 	}
