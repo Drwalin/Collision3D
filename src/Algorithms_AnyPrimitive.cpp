@@ -32,11 +32,10 @@ bool AnyPrimitive::RayTest(const Transform &trans, const RayInfo &ray,
 	}
 }
 
-bool AnyPrimitive::RayTestLocal(const Transform &trans, const RayInfo &ray,
-								const RayInfo &rayLocal, float &near,
+bool AnyPrimitive::RayTestLocal(const RayInfo &ray, float &near,
 								glm::vec3 &normal) const
 {
-	return RayTest({}, rayLocal, near, normal);
+	return RayTest({}, ray, near, normal);
 }
 
 bool AnyPrimitive::CylinderTestOnGround(const Transform &trans,

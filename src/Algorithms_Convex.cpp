@@ -7,7 +7,8 @@
 namespace Collision3D
 {
 bool TestPlaneIterational(glm::vec3 normal, float d, const RayInfo &ray,
-						  float &near, float &far, int &frontNormal, int &backNormal, int id)
+						  float &near, float &far, int &frontNormal,
+						  int &backNormal, int id)
 {
 	/* Compute intersection point T and sidedness */
 	float vd = glm::dot(ray.dir, normal);
@@ -44,4 +45,3 @@ bool TestPlaneIterational(glm::vec3 normal, float d, const RayInfo &ray,
 	return true;
 }
 } // namespace Collision3D
-

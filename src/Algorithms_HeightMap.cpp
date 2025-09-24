@@ -70,9 +70,7 @@ void HeightMap::CopyIntoThis(const HeightMap &other)
 		memcpy(header, other.header, other.header->bytes);
 		size_t diff = ((size_t)header) - ((size_t)other.header);
 		*((size_t*)&(header->material)) += diff;
-		for (int i=0; i<header->levels; ++i) {
-			*((size_t*)&(header->heightsMipmap[i])) += diff;
-		}
+		*((size_t*)&(header->heights)) += diff;
 	} else {
 		header = nullptr;
 	}
@@ -97,12 +95,11 @@ bool HeightMap::RayTest(const Transform &trans, const RayInfo &ray, float &near,
 	return header->RayTest(trans, ray, near, normal);
 }
 
-bool HeightMap::RayTestLocal(const Transform &trans, const RayInfo &ray,
-							 const RayInfo &rayLocal, float &near,
+bool HeightMap::RayTestLocal(const RayInfo &ray, float &near,
 							 glm::vec3 &normal) const
 {
 	assert(header);
-	return header->RayTestLocal(trans, ray, rayLocal, near, normal);
+	return header->RayTestLocal(ray, near, normal);
 }
 
 bool HeightMap::CylinderTestOnGround(const Transform &trans,
@@ -157,13 +154,13 @@ glm::ivec2 HeightMap::ConvertGlobalPosToCoord(const Transform &trans,
 const HeightMap::Type *HeightMap::GetHeights() const
 {
 	assert(header);
-	return header->heightsMipmap[0];
+	return header->heights;
 }
 
 HeightMap::Type *HeightMap::AccessHeights()
 {
 	assert(header);
-	return header->heightsMipmap[0];
+	return header->heights;
 }
 
 const HeightMap::MaterialType *HeightMap::GetMaterial() const

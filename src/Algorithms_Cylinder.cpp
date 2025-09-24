@@ -56,12 +56,11 @@ bool Cylinder::RayTest(const Transform &trans, const RayInfo &ray, float &near,
 	return cylinderIntersect(ray, trans.pos, height, radius, near, normal);
 }
 
-bool Cylinder::RayTestLocal(const Transform &trans, const RayInfo &ray,
-							const RayInfo &rayLocal, float &near,
+bool Cylinder::RayTestLocal(const RayInfo &ray, float &near,
 							glm::vec3 &normal) const
 {
 	// TODO: warn because it is slower
-	return cylinderIntersect(rayLocal, trans.pos, height, radius, near, normal);
+	return cylinderIntersect(ray, {}, height, radius, near, normal);
 }
 
 bool Cylinder::CylinderTestOnGround(const Transform &trans, const Cylinder &cyl,

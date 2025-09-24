@@ -25,7 +25,7 @@ spp::Aabb RampRectangle::GetAabb(const Transform &trans) const
 bool RampRectangle::RayTest(const Transform &trans, const RayInfo &ray,
 							float &near, glm::vec3 &normal) const
 {
-	if (RayTestLocal(trans, ray, trans.ToLocal(ray), near, normal)) {
+	if (RayTestLocal(trans.ToLocal(ray), near, normal)) {
 		normal = trans.rot * normal;
 		return true;
 	} else {
@@ -33,8 +33,7 @@ bool RampRectangle::RayTest(const Transform &trans, const RayInfo &ray,
 	}
 }
 
-bool RampRectangle::RayTestLocal(const Transform &trans, const RayInfo &ray,
-								 const RayInfo &rayLocal, float &near,
+bool RampRectangle::RayTestLocal(const RayInfo &ray, float &near,
 								 glm::vec3 &normal) const
 {
 	const glm::vec3 non = glm::normalize(glm::vec3{0, depth, -height});
@@ -50,8 +49,8 @@ bool RampRectangle::RayTestLocal(const Transform &trans, const RayInfo &ray,
 	float far = 1e9f;
 
 	for (int i = 0; i < 6; ++i) {
-		if (TestPlaneIterational(n[i], offs[i], rayLocal, near, far,
-								 frontNormalId, backNormalId, i) == false) {
+		if (TestPlaneIterational(n[i], offs[i], ray, near, far, frontNormalId,
+								 backNormalId, i) == false) {
 			return false;
 		}
 	}

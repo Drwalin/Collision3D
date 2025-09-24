@@ -26,10 +26,8 @@ struct HeightMap_Header {
 	Type maxDh11; // height difference along diagonal
 
 	int resolution;
-	int resMipmap;
 	// diagonal is between (x, y) and (x+1, y+1)
 	Type *heights;
-	Type *heightsMipmap[16];
 	MaterialType *material;
 
 public:
@@ -40,7 +38,6 @@ public:
 									   glm::vec3 pos) const;
 
 	void InitMeta(float scale);
-	void GenerateMipmap();
 	
 	template<bool SAFE>
 	void SetNoMimmap(glm::ivec2 coord, Type value);

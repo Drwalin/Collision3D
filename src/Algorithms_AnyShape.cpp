@@ -3,7 +3,7 @@
 // You should have received a copy of the MIT License along with this program.
 
 #include "../include/collision3d/CollisionShapes_AnyOrCompound.hpp"
-	
+
 namespace Collision3D
 {
 using namespace spp;
@@ -11,7 +11,6 @@ using namespace spp;
 EACH_SHAPE(AnyShape, CONSTRUCTOR_SHAPE, EMPTY_CODE)
 
 EACH_SHAPE(AnyShape, OPERATOR_SET_SHAPE, EMPTY_CODE)
-	
 
 AnyShape::AnyShape() { type = INVALID; }
 
@@ -20,8 +19,9 @@ AnyShape::AnyShape(AnyShape &other)
 	this->type = other.type;
 	this->trans = other.trans;
 	switch (other.type) {
-	case INVALID: break;
-	EACH_SHAPE(AnyShape, SWITCH_CASES, SIMPLE_CODE_DO_COPY);
+	case INVALID:
+		break;
+		EACH_SHAPE(AnyShape, SWITCH_CASES, SIMPLE_CODE_DO_COPY);
 	default:
 		type = INVALID;
 	}
@@ -32,8 +32,9 @@ AnyShape::AnyShape(AnyShape &&other)
 	this->type = other.type;
 	this->trans = other.trans;
 	switch (other.type) {
-	case INVALID: break;
-	EACH_SHAPE(AnyShape, SWITCH_CASES, SIMPLE_CODE_DO_MOVE);
+	case INVALID:
+		break;
+		EACH_SHAPE(AnyShape, SWITCH_CASES, SIMPLE_CODE_DO_MOVE);
 	default:
 		type = INVALID;
 	}
@@ -47,7 +48,7 @@ AnyShape::AnyShape(const AnyShape &other)
 	switch (other.type) {
 	case INVALID:
 		break;
-	EACH_SHAPE(AnyShape, SWITCH_CASES, SIMPLE_CODE_DO_COPY);
+		EACH_SHAPE(AnyShape, SWITCH_CASES, SIMPLE_CODE_DO_COPY);
 	default:
 		type = INVALID;
 	}
@@ -56,7 +57,7 @@ AnyShape::AnyShape(const AnyShape &other)
 AnyShape::~AnyShape()
 {
 	switch (type) {
-	EACH_SHAPE(AnyShape, SWITCH_CASES, SIMPLE_CODE_CALL_DESTRUCTOR);
+		EACH_SHAPE(AnyShape, SWITCH_CASES, SIMPLE_CODE_CALL_DESTRUCTOR);
 	default:
 	}
 	type = INVALID;
@@ -88,7 +89,7 @@ spp::Aabb AnyShape::GetAabb(const Transform &trans) const
 	switch (type) {
 	case INVALID:
 		return spp::AABB_INVALID;
-	EACH_SHAPE(AnyShape, SWITCH_CASES, CODE_GET_AABB);
+		EACH_SHAPE(AnyShape, SWITCH_CASES, CODE_GET_AABB);
 	default:
 		return spp::AABB_INVALID;
 	}
@@ -100,17 +101,16 @@ bool AnyShape::RayTest(const Transform &trans, const RayInfo &ray, float &near,
 	switch (type) {
 	case INVALID:
 		return false;
-	EACH_SHAPE(AnyShape, SWITCH_CASES, CODE_RAY_TEST);
+		EACH_SHAPE(AnyShape, SWITCH_CASES, CODE_RAY_TEST);
 	default:
 		return false;
 	}
 }
 
-bool AnyShape::RayTestLocal(const Transform &trans, const RayInfo &ray,
-							const RayInfo &rayLocal, float &near,
+bool AnyShape::RayTestLocal(const RayInfo &ray, float &near,
 							glm::vec3 &normal) const
 {
-	return RayTest({}, rayLocal, near, normal);
+	return RayTest({}, ray, near, normal);
 }
 
 bool AnyShape::CylinderTestOnGround(const Transform &trans, const Cylinder &cyl,
@@ -119,7 +119,7 @@ bool AnyShape::CylinderTestOnGround(const Transform &trans, const Cylinder &cyl,
 	switch (type) {
 	case INVALID:
 		return false;
-	EACH_SHAPE(AnyShape, SWITCH_CASES, CODE_CYLINDER_TEST_ON_GROUND);
+		EACH_SHAPE(AnyShape, SWITCH_CASES, CODE_CYLINDER_TEST_ON_GROUND);
 	default:
 		return false;
 	}
@@ -134,7 +134,7 @@ bool AnyShape::CylinderTestMovement(const Transform &trans,
 	switch (type) {
 	case INVALID:
 		return false;
-	EACH_SHAPE(AnyShape, SWITCH_CASES, CODE_CYLINDER_TEST_MOVEMENT);
+		EACH_SHAPE(AnyShape, SWITCH_CASES, CODE_CYLINDER_TEST_MOVEMENT);
 	default:
 		return false;
 	}

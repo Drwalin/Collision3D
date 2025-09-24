@@ -27,8 +27,7 @@ bool TestPlaneIterational(glm::vec3 normal, float d, const RayInfo &ray,
 	spp::Aabb GetAabb(const Transform &trans) const;                           \
 	bool RayTest(const Transform &trans, const RayInfo &ray, float &near,      \
 				 glm::vec3 &normal) const;                                     \
-	bool RayTestLocal(const Transform &trans, const RayInfo &ray,              \
-					  const RayInfo &rayLocal, float &near, glm::vec3 &normal) \
+	bool RayTestLocal(const RayInfo &ray, float &near, glm::vec3 &normal)      \
 		const;                                                                 \
 	bool CylinderTestMovement(const Transform &trans,                          \
 							  float &validMovementFactor, const Cylinder &cyl, \

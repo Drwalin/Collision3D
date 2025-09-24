@@ -47,8 +47,13 @@ CLASS::CLASS(SHAPE &&NAME, Transform trans) \
 #define CODE_GET_AABB(SHAPE, NAME, INDEX, DEREF) \
 		return NAME DEREF GetAabb(trans * this->trans);
 
-#define CODE_RAY_TEST(SHAPE, NAME, INDEX, DEREF) \
-		return NAME DEREF RayTest(trans * this->trans, ray, near, normal);
+#define CODE_RAY_TEST(SHAPE, NAME, INDEX, DEREF)                               \
+	if (NAME DEREF RayTest(trans * this->trans, ray, near, normal)) {          \
+		normal = (trans * this->trans) * normal;                               \
+		return true;                                                           \
+	} else {                                                                   \
+		return false;                                                          \
+	}
 
 #define CODE_CYLINDER_TEST_ON_GROUND(SHAPE, NAME, INDEX, DEREF) \
 		return NAME DEREF CylinderTestOnGround(trans * this->trans, cyl, pos, offsetHeight);

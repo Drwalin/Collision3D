@@ -26,7 +26,7 @@ static bool sphereIntersect(const RayInfo &ray, glm::vec3 pos, float radius,
 		return false;
 	}
 	h = sqrt(h);
-	
+
 	near = -b - h;
 	glm::vec3 point = ray.start + ray.dir * near;
 	normal = (point - pos) / radius;
@@ -39,12 +39,11 @@ bool Sphere::RayTest(const Transform &trans, const RayInfo &ray, float &near,
 	return sphereIntersect(ray, trans.pos, radius, near, normal);
 }
 
-bool Sphere::RayTestLocal(const Transform &trans, const RayInfo &ray,
-						  const RayInfo &rayLocal, float &near,
+bool Sphere::RayTestLocal(const RayInfo &ray, float &near,
 						  glm::vec3 &normal) const
 {
 	// TODO: warn because it is slower
-	return sphereIntersect(rayLocal, trans.pos, radius, near, normal);
+	return sphereIntersect(ray, {}, radius, near, normal);
 }
 
 bool Sphere::CylinderTestOnGround(const Transform &trans, const Cylinder &cyl,
