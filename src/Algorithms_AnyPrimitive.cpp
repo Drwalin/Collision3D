@@ -2,7 +2,7 @@
 // Copyright (c) 2025 Marek Zalewski aka Drwalin
 // You should have received a copy of the MIT License along with this program.
 
-#include "../include/collision3d/CollisionShapes.hpp"
+#include "../include/collision3d/CollisionShapes_AnyOrCompound.hpp"
 
 namespace Collision3D
 {
@@ -36,13 +36,7 @@ bool AnyPrimitive::RayTestLocal(const Transform &trans, const RayInfo &ray,
 								const RayInfo &rayLocal, float &near,
 								glm::vec3 &normal) const
 {
-	switch (type) {
-	case INVALID:
-		return false;
-		EACH_PRIMITIVE(AnyShape, SWITCH_CASES, CODE_RAY_TEST_LOCAL);
-	default:
-		return false;
-	}
+	return RayTest({}, rayLocal, near, normal);
 }
 
 bool AnyPrimitive::CylinderTestOnGround(const Transform &trans,

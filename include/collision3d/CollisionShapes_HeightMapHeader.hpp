@@ -52,21 +52,26 @@ public:
 	bool SetMaterial(glm::ivec2 coord, MaterialType value);
 	template<bool SAFE>
 	MaterialType GetMaterial(glm::ivec2 coord) const;
+	
+	
+	
+	
+	
+	
+	
+	
 
 	template <bool TOP_ELSE_DOWN>
 	bool TriangleRayTest(Type h00, Type hxy, Type h11, int x, int z,
 						 const RayInfo &localRay, float &near,
 						 glm::vec3 &localNormalUnnormalised) const;
+	
+	bool RayTastSquare(const RayInfo &ray, float &near, int x, int z,
+					   glm::vec3 &normal, Type heights[2][2]) const;
 
-	template <bool BORDER_X, bool BORDER_Z, bool SIGN_DIR_X, bool SIGN_DIR_Z>
-	bool RayTestLocalNode(const RayInfo &rayLocal, float &near,
-						  glm::vec3 &localNormalUnnormalised, int depth, int x,
-						  int z) const;
-
-	template <bool BORDER_X, bool BORDER_Z, bool SIGN_DIR_X, bool SIGN_DIR_Z>
-	bool RayTestLocalNodeCallOrdered(const RayInfo &rayLocal, float &near,
-									 glm::vec3 &localNormalUnnormalised,
-									 int depth, int x, int z) const;
+	template <bool SIGN_DIR_X, bool SIGN_DIR_Z>
+	bool RayTestGrid(const RayInfo &rayLocal, float &near,
+						  glm::vec3 &normal) const;
 
 	COLLISION_SHAPE_METHODS_DECLARATION()
 

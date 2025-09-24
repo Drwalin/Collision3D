@@ -2,7 +2,7 @@
 // Copyright (c) 2025 Marek Zalewski aka Drwalin
 // You should have received a copy of the MIT License along with this program.
 
-#include "../include/collision3d/CollisionShapes.hpp"
+#include "../include/collision3d/CollisionShapes_Primitives.hpp"
 
 namespace Collision3D
 {
@@ -108,19 +108,19 @@ static inline bool FastRayTest2(const glm::vec3 min, const glm::vec3 max,
 bool VertBox::RayTest(const Transform &trans, const RayInfo &ray, float &near,
 					  glm::vec3 &normal) const
 {
-	return RayTestLocal(trans, ray, trans.ToLocal(ray), near, normal);
+	if (RayTestLocal(trans, ray, trans.ToLocal(ray), near, normal)) {
+		normal = trans.rot * normal;
+		return true;
+	} else {
+		return false;
+	}
 }
 
 bool VertBox::RayTestLocal(const Transform &trans, const RayInfo &ray,
 						   const RayInfo &rayLocal, float &near,
 						   glm::vec3 &normal) const
 {
-	if (FastRayTest2(-halfExtents, halfExtents, rayLocal, near, normal)) {
-		normal = trans.rot * normal;
-		return true;
-	} else {
-		return false;
-	}
+	return FastRayTest2(-halfExtents, halfExtents, rayLocal, near, normal);
 }
 
 bool VertBox::CylinderTestOnGround(const Transform &trans, const Cylinder &cyl,

@@ -50,9 +50,6 @@ CLASS::CLASS(SHAPE &&NAME, Transform trans) \
 #define CODE_RAY_TEST(SHAPE, NAME, INDEX, DEREF) \
 		return NAME DEREF RayTest(trans * this->trans, ray, near, normal);
 
-#define CODE_RAY_TEST_LOCAL(SHAPE, NAME, INDEX, DEREF) \
-		return NAME DEREF RayTestLocal(trans * this->trans, ray, rayLocal, near, normal);
-
 #define CODE_CYLINDER_TEST_ON_GROUND(SHAPE, NAME, INDEX, DEREF) \
 		return NAME DEREF CylinderTestOnGround(trans * this->trans, cyl, pos, offsetHeight);
 

@@ -110,13 +110,7 @@ bool AnyShape::RayTestLocal(const Transform &trans, const RayInfo &ray,
 							const RayInfo &rayLocal, float &near,
 							glm::vec3 &normal) const
 {
-	switch (type) {
-	case INVALID:
-		return false;
-	EACH_SHAPE(AnyShape, SWITCH_CASES, CODE_RAY_TEST_LOCAL);
-	default:
-		return false;
-	}
+	return RayTest({}, rayLocal, near, normal);
 }
 
 bool AnyShape::CylinderTestOnGround(const Transform &trans, const Cylinder &cyl,

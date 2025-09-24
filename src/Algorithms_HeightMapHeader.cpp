@@ -373,42 +373,6 @@ bool HeightMap_Header::RayTestLocalNode(const RayInfo &rayLocal, float &near,
 #undef __COL_RTLNCO
 }
 
-template <bool BORDER_X, bool BORDER_Z, bool SIGN_DIR_X, bool SIGN_DIR_Z>
-bool HeightMap_Header::RayTestLocalNodeCallOrdered(const RayInfo &rayLocal,
-											float &near, glm::vec3 &normal,
-											int depth, int x, int z) const
-{
-	bool res = false;
-#define __COL_RTLN(DX, DZ)                                                     \
-	RayTestLocalNode<true, true, SIGN_DIR_X, SIGN_DIR_Z>(                      \
-		rayLocal, near, normal, depth, x + DX, z + DZ)
-	if constexpr (SIGN_DIR_X) {
-		if constexpr (SIGN_DIR_Z) {
-			res |= __COL_RTLN(0, 0);
-			res |= __COL_RTLN(0, 1);
-			res |= __COL_RTLN(1, 0);
-			res |= __COL_RTLN(1, 1);
-		} else {
-			res |= __COL_RTLN(0, 1);
-			res |= __COL_RTLN(0, 0);
-			res |= __COL_RTLN(1, 1);
-			res |= __COL_RTLN(1, 0);
-		}
-	} else if constexpr (SIGN_DIR_Z) {
-		res |= __COL_RTLN(1, 0);
-		res |= __COL_RTLN(1, 1);
-		res |= __COL_RTLN(0, 0);
-		res |= __COL_RTLN(0, 1);
-	} else {
-		res |= __COL_RTLN(1, 1);
-		res |= __COL_RTLN(1, 0);
-		res |= __COL_RTLN(0, 1);
-		res |= __COL_RTLN(0, 0);
-	}
-#undef __COL_RTLN
-	return res;
-}
-
 bool HeightMap_Header::CylinderTestOnGround(const Transform &trans,
 									 const Cylinder &cyl, glm::vec3 pos,
 									 float &offsetHeight) const

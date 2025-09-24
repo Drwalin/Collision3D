@@ -2,7 +2,7 @@
 // Copyright (c) 2025 Marek Zalewski aka Drwalin
 // You should have received a copy of the MIT License along with this program.
 
-#include "../include/collision3d/CollisionShapes.hpp"
+#include "../include/collision3d/CollisionShapes_Primitives.hpp"
 
 namespace Collision3D
 {
@@ -44,12 +44,7 @@ bool Sphere::RayTestLocal(const Transform &trans, const RayInfo &ray,
 						  glm::vec3 &normal) const
 {
 	// TODO: warn because it is slower
-	if (sphereIntersect(rayLocal, trans.pos, radius, near, normal)) {
-		normal = trans.rot * normal;
-		return true;
-	} else {
-		return false;
-	}
+	return sphereIntersect(rayLocal, trans.pos, radius, near, normal);
 }
 
 bool Sphere::CylinderTestOnGround(const Transform &trans, const Cylinder &cyl,

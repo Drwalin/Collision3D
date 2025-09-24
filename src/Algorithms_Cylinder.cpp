@@ -2,7 +2,7 @@
 // Copyright (c) 2025 Marek Zalewski aka Drwalin
 // You should have received a copy of the MIT License along with this program.
 
-#include "../include/collision3d/CollisionShapes.hpp"
+#include "../include/collision3d/CollisionShapes_Primitives.hpp"
 
 namespace Collision3D
 {
@@ -61,12 +61,7 @@ bool Cylinder::RayTestLocal(const Transform &trans, const RayInfo &ray,
 							glm::vec3 &normal) const
 {
 	// TODO: warn because it is slower
-	if (cylinderIntersect(rayLocal, trans.pos, height, radius, near, normal)) {
-		normal = trans.rot * normal;
-		return true;
-	} else {
-		return false;
-	}
+	return cylinderIntersect(rayLocal, trans.pos, height, radius, near, normal);
 }
 
 bool Cylinder::CylinderTestOnGround(const Transform &trans, const Cylinder &cyl,

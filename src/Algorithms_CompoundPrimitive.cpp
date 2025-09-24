@@ -18,24 +18,12 @@ spp::Aabb CompoundPrimitive::GetAabb(const Transform &trans) const
 bool CompoundPrimitive::RayTest(const Transform &trans, const RayInfo &ray,
 								float &near, glm::vec3 &normal) const
 {
-	bool res = false;
-	float ne;
-	glm::vec3 no;
-	for (const auto &s : primitives) {
-		if (s.RayTest(trans, ray, ne, no)) {
-			if (res) {
-				if (near > ne) {
-					near = ne;
-					normal = no;
-				}
-			} else {
-				near = ne;
-				normal = no;
-				res = true;
-			}
-		}
+	if (RayTestLocal(trans, ray, trans.ToLocal(ray), near, normal)) {
+		normal = trans.rot * normal;
+		return true;
+	} else {
+		return false;
 	}
-	return res;
 }
 
 bool CompoundPrimitive::RayTestLocal(const Transform &trans, const RayInfo &ray,
@@ -58,9 +46,6 @@ bool CompoundPrimitive::RayTestLocal(const Transform &trans, const RayInfo &ray,
 				res = true;
 			}
 		}
-	}
-	if (res) {
-		normal = trans.rot * normal;
 	}
 	return res;
 }
