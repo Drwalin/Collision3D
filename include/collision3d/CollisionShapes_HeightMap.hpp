@@ -27,6 +27,7 @@ struct HeightMap {
 	HeightMap &operator=(const HeightMap &other);
 
 	void Init(glm::ivec2 resolution);
+	void InitMeta(float horizontalScale, float verticalScale);
 
 	// Treating cylinder as point at it's origin
 	COLLISION_SHAPE_METHODS_DECLARATION()

@@ -82,6 +82,12 @@ void HeightMap::Init(glm::ivec2 resolution)
 	header = HeightMap_Header::Allocate(resolution);
 }
 
+void HeightMap::InitMeta(float horizontalScale, float verticalScale)
+{
+	assert(header);
+	header->InitMeta(horizontalScale, verticalScale);
+}
+
 spp::Aabb HeightMap::GetAabb(const Transform &trans) const
 {
 	assert(header);

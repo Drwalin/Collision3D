@@ -139,4 +139,94 @@ bool AnyShape::CylinderTestMovement(const Transform &trans,
 		return false;
 	}
 }
+
+#define CODE_COPY_FROM_ANY_PRIMITIVE(SHAPE, NAME, INDEX, DEREF)                \
+	type = INDEX;                                                              \
+	NAME = other.NAME;
+AnyShape::AnyShape(AnyPrimitive &other)
+{
+	trans = other.trans;
+	switch (other.type) {
+	case AnyPrimitive::INVALID:
+		break;
+		EACH_PRIMITIVE(AnyPrimitive, SWITCH_CASES,
+					   CODE_COPY_FROM_ANY_PRIMITIVE);
+	default:
+	}
+}
+
+#define CODE_MOVE_FROM_ANY_PRIMITIVE(SHAPE, NAME, INDEX, DEREF)                \
+	type = INDEX;                                                              \
+	NAME = std::move(other.NAME);
+AnyShape::AnyShape(const AnyPrimitive &other)
+{
+	trans = other.trans;
+	switch (other.type) {
+	case AnyPrimitive::INVALID:
+		break;
+		EACH_PRIMITIVE(AnyPrimitive, SWITCH_CASES,
+					   CODE_MOVE_FROM_ANY_PRIMITIVE);
+	default:
+	}
+}
+
+AnyShape::AnyShape(AnyPrimitive &&other)
+{
+	trans = other.trans;
+	switch (other.type) {
+	case AnyPrimitive::INVALID:
+		break;
+		EACH_PRIMITIVE(AnyPrimitive, SWITCH_CASES,
+					   CODE_MOVE_FROM_ANY_PRIMITIVE);
+	default:
+	}
+}
+
+#define CODE_COPY_FROM_ANY_PRIMITIVE(SHAPE, NAME, INDEX, DEREF)                \
+	type = INDEX;                                                              \
+	NAME = other.NAME;
+AnyShape &AnyShape::operator=(AnyPrimitive &other)
+{
+	this->~AnyShape();
+	trans = other.trans;
+	switch (other.type) {
+	case AnyPrimitive::INVALID:
+		break;
+		EACH_PRIMITIVE(AnyPrimitive, SWITCH_CASES,
+					   CODE_COPY_FROM_ANY_PRIMITIVE);
+	default:
+	}
+	return *this;
+}
+
+#define CODE_MOVE_FROM_ANY_PRIMITIVE(SHAPE, NAME, INDEX, DEREF)                \
+	type = INDEX;                                                              \
+	NAME = std::move(other.NAME);
+AnyShape &AnyShape::operator=(const AnyPrimitive &other)
+{
+	this->~AnyShape();
+	trans = other.trans;
+	switch (other.type) {
+	case AnyPrimitive::INVALID:
+		break;
+		EACH_PRIMITIVE(AnyPrimitive, SWITCH_CASES,
+					   CODE_MOVE_FROM_ANY_PRIMITIVE);
+	default:
+	}
+	return *this;
+}
+
+AnyShape &AnyShape::operator=(AnyPrimitive &&other)
+{
+	this->~AnyShape();
+	trans = other.trans;
+	switch (other.type) {
+	case AnyPrimitive::INVALID:
+		break;
+		EACH_PRIMITIVE(AnyPrimitive, SWITCH_CASES,
+					   CODE_MOVE_FROM_ANY_PRIMITIVE);
+	default:
+	}
+	return *this;
+}
 } // namespace Collision3D

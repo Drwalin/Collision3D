@@ -11,8 +11,7 @@ namespace Collision3D
 struct VertBox;
 struct Cylinder;
 struct Sphere;
-struct Rectangle;
-struct Triangle;
+struct RampRectangle;
 struct HeightMap;
 struct HeightMap_Header;
 

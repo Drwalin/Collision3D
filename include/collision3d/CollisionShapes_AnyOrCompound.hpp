@@ -86,6 +86,7 @@ struct AnyShape {
 	EACH_SHAPE(AnyShape, DECLARATION_CONSTRUCTORS_MOVE, EMPTY_CODE)
 
 	AnyShape();
+	~AnyShape();
 
 	AnyShape(AnyShape &other);
 	AnyShape(AnyShape &&other);
@@ -94,8 +95,14 @@ struct AnyShape {
 	AnyShape &operator=(AnyShape &other);
 	AnyShape &operator=(AnyShape &&other);
 	AnyShape &operator=(const AnyShape &other);
-
-	~AnyShape();
+	
+	AnyShape(AnyPrimitive &other);
+	AnyShape(const AnyPrimitive &other);
+	AnyShape(AnyPrimitive &&other);
+	
+	AnyShape &operator=(AnyPrimitive &other);
+	AnyShape &operator=(const AnyPrimitive &other);
+	AnyShape &operator=(AnyPrimitive &&other);
 
 	COLLISION_SHAPE_METHODS_DECLARATION()
 };

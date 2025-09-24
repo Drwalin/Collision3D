@@ -11,12 +11,12 @@
 	MACRO(CLASS, CODE, ., VertBox, vertBox, VERTBOX)                           \
 	MACRO(CLASS, CODE, ., Cylinder, cylinder, CYLINDER)                        \
 	MACRO(CLASS, CODE, ., Sphere, sphere, SPHERE)                              \
-	MACRO(CLASS, CODE, ., RampRectangle, rampRectangle, RAMP_RECTANGLE)        \
-	MACRO(CLASS, CODE, ., VerticalTriangle, vertTriangle, VERTICAL_TRIANGLE)   \
-	MACRO(CLASS, CODE, ., RampTriangle, rampTriangle, RAMP_TRIANGLE)
+	MACRO(CLASS, CODE, ., RampRectangle, rampRectangle, RAMP_RECTANGLE)
+// 	MACRO(CLASS, CODE, ., VerticalTriangle, vertTriangle, VERTICAL_TRIANGLE)   \
+// 	MACRO(CLASS, CODE, ., RampTriangle, rampTriangle, RAMP_TRIANGLE)
 
 #define SWITCH_CASES(CLASS, CODE, DEREF, SHAPE, NAME, INDEX)                   \
-	case INDEX: {                                                              \
+	case CLASS::INDEX: {                                                       \
 		CODE(SHAPE, NAME, INDEX, DEREF)                                        \
 	} break;
 
@@ -75,3 +75,5 @@ CLASS::CLASS(SHAPE &&NAME, Transform trans) \
 #define DECLARATION_CONSTRUCTORS_MOVE(CLASS, CODE, DEREF, SHAPE, NAME, INDEX)  \
 	CLASS(SHAPE &&NAME, Transform trans = {});                                 \
 	CLASS &operator=(SHAPE &&NAME);
+
+
