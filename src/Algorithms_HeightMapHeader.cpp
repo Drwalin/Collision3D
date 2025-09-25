@@ -2,6 +2,10 @@
 // Copyright (c) 2025 Marek Zalewski aka Drwalin
 // You should have received a copy of the MIT License along with this program.
 
+// Parts of this file are based on:
+//    https://theshoemaker.de/posts/ray-casting-in-2d-grids
+// in particular RayTestGrid method and Helper function
+
 #include <cstring>
 #include <cstdlib>
 
