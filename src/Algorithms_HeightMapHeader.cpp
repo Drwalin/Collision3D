@@ -2,12 +2,13 @@
 // Copyright (c) 2025 Marek Zalewski aka Drwalin
 // You should have received a copy of the MIT License along with this program.
 
-// Parts of this file are based on:
-//    https://theshoemaker.de/posts/ray-casting-in-2d-grids
-// in particular RayTestGrid method and Helper function
+// RayTestGrid based on:
+//    https://playtechs.blogspot.com/2007/03/raytracing-on-grid.html
 
 #include <cstring>
 #include <cstdlib>
+
+#include <limits>
 
 #include "../include/collision3d/CollisionShapes_HeightMapHeader.hpp"
 
@@ -107,6 +108,12 @@ bool HeightMap_Header::IsValidCoord(glm::ivec2 coord) const
 		   coord.y < resolution.y;
 }
 
+bool HeightMap_Header::IsValidCell(glm::ivec2 coord) const
+{
+	return coord.x >= 0 && coord.y >= 0 && coord.x + 1 < resolution.x &&
+		   coord.y + 1 < resolution.y;
+}
+
 spp::Aabb HeightMap_Header::GetAabb(const Transform &trans) const
 {
 	glm::vec2 a = trans * glm::vec2(0, 0);
@@ -141,20 +148,37 @@ bool HeightMap_Header::RayTestLocal(const RayInfo &_ray, float &near,
 
 	near = 1.0f;
 
-	if (!ray.signs[0]) {
-		if (!ray.signs[2]) {
-			if (!RayTestGrid<true, true>(ray, near, normal))
+	if (ray.dir.x > 0) {
+		if (ray.dir.z > 0) {
+			if (!RayTestGrid<1, 1>(ray, near, normal))
+				return false;
+		} else if (ray.dir.z == 0) {
+			if (!RayTestGrid<1, 0>(ray, near, normal))
 				return false;
 		} else {
-			if (!RayTestGrid<true, false>(ray, near, normal))
+			if (!RayTestGrid<1, -1>(ray, near, normal))
+				return false;
+		}
+	} else if (ray.dir.x == 0) {
+		if (ray.dir.z > 0) {
+			if (!RayTestGrid<0, 1>(ray, near, normal))
+				return false;
+		} else if (ray.dir.z == 0) {
+			if (!RayTestGrid<0, 0>(ray, near, normal))
+				return false;
+		} else {
+			if (!RayTestGrid<0, -1>(ray, near, normal))
 				return false;
 		}
 	} else {
-		if (!ray.signs[2]) {
-			if (!RayTestGrid<false, true>(ray, near, normal))
+		if (ray.dir.z > 0) {
+			if (!RayTestGrid<-1, 1>(ray, near, normal))
+				return false;
+		} else if (ray.dir.z == 0) {
+			if (!RayTestGrid<-1, 0>(ray, near, normal))
 				return false;
 		} else {
-			if (!RayTestGrid<false, false>(ray, near, normal))
+			if (!RayTestGrid<-1, -1>(ray, near, normal))
 				return false;
 		}
 	}
@@ -163,98 +187,126 @@ bool HeightMap_Header::RayTestLocal(const RayInfo &_ray, float &near,
 	return true;
 }
 
-template <bool IS_POSITIVE>
-static void Helper(float pos, float dir, float &tile, float &dtile, float &dt,
-				   float &ddt)
-{
-	tile = floor(pos) + 1;
-	if constexpr (IS_POSITIVE) {
-		dtile = 1;
-		dt = ((tile + 0) - pos) / dir;
-	} else {
-		dtile = -1;
-		dt = ((tile - 1) - pos) / dir;
-	}
-	ddt = dtile / dir;
-}
-
-template <bool POSITIVE_DIR_X, bool POSITIVE_DIR_Z>
+template <int DIR_SIGN_X, int DIR_SIGN_Z>
 bool HeightMap_Header::RayTestGrid(const RayInfo &ray, float &near,
 								   glm::vec3 &normal) const
 {
-	glm::vec2 dir2 = {ray.dir.x, ray.dir.z};
-	float tilex, dtilex, dtx, ddtx, tilez, dtilez, dtz, ddtz;
-	Helper<POSITIVE_DIR_X>(ray.start.x, ray.dir.x, tilex, dtilex, dtx, ddtx);
-	Helper<POSITIVE_DIR_Z>(ray.start.z, ray.dir.z, tilez, dtilez, dtz, ddtz);
-	float t = 0.0f;
+	float dx = ray.dir.x;
+	float dz = ray.dir.z;
 
-	if (ray.dir.x * ray.dir.x + ray.dir.z * ray.dir.z > 0) {
-		while (t <= 1.0f && tilex > 0 && tilex <= resolution.x && tilez > 0 &&
-			   tilez <= resolution.y) {
-			float oldx = tilex, oldz = tilez, oldt = t;
-			if (dtx < dtz) {
-				tilex += dtilex;
-				const float dt = dtx;
-				t += dt;
-				dtx += ddtx - dt;
-				dtz -= dt;
-			} else {
-				tilez += dtilez;
-				const float dt = dtz;
-				t += dt;
-				dtx -= dt;
-				dtz += ddtz - dt;
-			}
+	int x = int(floor(ray.start.x));
+	int z = int(floor(ray.start.z));
 
-			if (RayTestCell(ray, near, normal, oldx, oldz, oldt, t)) {
-				return true;
-			}
-		}
-		return false;
+	int n = 1;
+	int x_inc, z_inc;
+	float error;
+
+	if constexpr (DIR_SIGN_X == 0) {
+		x_inc = 0;
+		error = std::numeric_limits<double>::infinity();
+	} else if constexpr (DIR_SIGN_X > 0) {
+		x_inc = 1;
+		n += int(floor(ray.end.x)) - x;
+		error = (floor(ray.start.x) + 1 - ray.start.x) * dz;
 	} else {
-		return RayTestCell(ray, near, normal, tilex, tilez, 0.0f, 1.0f);
+		x_inc = -1;
+		n += x - int(floor(ray.end.x));
+		error = (ray.start.x - floor(ray.start.x)) * dz;
 	}
+
+	if constexpr (DIR_SIGN_Z == 0) {
+		z_inc = 0;
+		error -= std::numeric_limits<double>::infinity();
+	} else if constexpr (DIR_SIGN_X > 0) {
+		z_inc = 1;
+		n += int(floor(ray.end.z)) - z;
+		error -= (floor(ray.start.z) + 1 - ray.start.z) * dx;
+	} else {
+		z_inc = -1;
+		n += z - int(floor(ray.end.z));
+		error -= (ray.start.z - floor(ray.start.z)) * dx;
+	}
+
+	bool stopIterating = false;
+	if (n == 0) {
+		return RayTestCell<DIR_SIGN_X, DIR_SIGN_Z>(ray, near, normal, x, z,
+												   stopIterating);
+	}
+
+	for (; n > 0; --n) {
+		if (RayTestCell<DIR_SIGN_X, DIR_SIGN_Z>(ray, near, normal, x, z,
+												stopIterating)) {
+			return true;
+		}
+		if (stopIterating) {
+			return false;
+		}
+
+		if (error > 0) {
+			z += z_inc;
+			error -= dx;
+		} else {
+			x += x_inc;
+			error += dz;
+		}
+	}
+	return false;
 }
 
+template <int DIR_SIGN_X, int DIR_SIGN_Z>
 bool HeightMap_Header::RayTestCell(const RayInfo &ray, float &near,
-								   glm::vec3 &normal, int x, int z, float t,
-								   float nextt) const
+								   glm::vec3 &normal, int x, int z,
+								   bool &stopIterating) const
 {
-	if (!(IsValidCoord({x, z}) && IsValidCoord({x + 1, z + 1}))) {
+	if (!IsValidCell({x, z})) {
 		return false;
 	}
 
-	Type h[2][2];
-	size_t id = Id<true>({x, z});
-	h[0][0] = heights[id];
-	h[1][0] = heights[id + 1];
-	h[0][1] = heights[id + resolution.x];
-	h[1][1] = heights[id + resolution.x + 1];
+	const size_t id = Id<false>({x, z});
+	const Type h00 = heights[id];
+	const Type h10 = heights[id + 1];
+	const Type h01 = heights[id + resolution.x];
+	const Type h11 = heights[id + resolution.x + 1];
 
-	float miny = h[0][0];
-	float maxy = h[0][0];
-	miny = glm::min(miny, h[0][1]);
-	miny = glm::min(miny, h[1][0]);
-	miny = glm::min(miny, h[1][1]);
-	maxy = glm::max(maxy, h[0][1]);
-	maxy = glm::max(maxy, h[1][0]);
-	maxy = glm::max(maxy, h[1][1]);
+#ifndef COLLISION3D_HEIGHT_MAP_REMOVE_CELL_BOUNDARY_CHECK
+	const float miny = glm::min(glm::min(h00, h01), glm::min(h10, h11));
+	const float maxy = glm::max(glm::max(h00, h01), glm::max(h10, h11));
 
-	float a = ray.dir.y * t;
-	float b = ray.dir.y * nextt;
+	float t1 = 0, t2 = 1;
+	if constexpr (DIR_SIGN_X != 0) {
+		float a = (x - ray.start.x) / ray.dir.x;
+		float b = (x + 1 - ray.start.x) / ray.dir.x;
+		t1 = glm::min(a, b);
+		t2 = glm::max(a, b);
+	}
 
-	float rminy = glm::min(a, b) + ray.start.y;
-	float rmaxy = glm::max(a, b) + ray.start.y;
+	if constexpr (DIR_SIGN_Z != 0) {
+		float a = (z - ray.start.z) / ray.dir.z;
+		float b = (z + 1 - ray.start.z) / ray.dir.z;
+		t1 = glm::max(t1, glm::min(a, b));
+		t2 = glm::min(t1, glm::max(a, b));
+	}
 
-	if (rminy > maxy || rmaxy < miny) {
+	if (t1 > 1.001f) {
+		stopIterating = true;
 		return false;
 	}
 
-	bool res = TriangleRayTest<true>(h[0][0], h[0][1], h[1][1], x, z, ray, near,
-									 normal);
+	const float h1 = ray.start.y + ray.dir.y * t1;
+	const float h2 = ray.start.y + ray.dir.y * t2;
+
+	const float maxty = glm::max(h1, h2);
+	const float minty = glm::min(h1, h2);
+
+	if (maxty < miny || minty > maxy) {
+		return false;
+	}
+#endif
+
+	bool res = TriangleRayTest<true>(h00, h01, h11, x, z, ray, near, normal);
 	float n;
 	glm::vec3 no;
-	if (TriangleRayTest<false>(h[0][0], h[1][0], h[1][1], x, z, ray, n, no)) {
+	if (TriangleRayTest<false>(h00, h10, h11, x, z, ray, n, no)) {
 		if (n < near || res == false) {
 			near = n;
 			normal = no;
@@ -322,7 +374,7 @@ bool HeightMap_Header::CylinderTestOnGround(const Transform &trans,
 	int z = pos.z;
 	float fracx = pos.x - x;
 	float fracz = pos.z - z;
-	if (!(IsValidCoord({x, z}) && IsValidCoord({x + 1, z + 1}))) {
+	if (!IsValidCell({x, z})) {
 		return false;
 	}
 

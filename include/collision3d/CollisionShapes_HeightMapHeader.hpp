@@ -50,11 +50,12 @@ public:
 	COLLISION_SHAPE_METHODS_DECLARATION()
 
 private:
-	template <bool SIGN_POSITIVE_DIR_X, bool SIGN_POSITIVE_DIR_Z>
+	template <int DIR_SIGN_X, int DIR_SIGN_Z>
 	bool RayTestGrid(const RayInfo &ray, float &near, glm::vec3 &normal) const;
 
+	template <int DIR_SIGN_X, int DIR_SIGN_Z>
 	bool RayTestCell(const RayInfo &ray, float &near, glm::vec3 &normal, int x,
-					 int z, float t, float nextt) const;
+					 int z, bool &stopIterating) const;
 
 	template <bool TOP_ELSE_DOWN>
 	bool TriangleRayTest(Type h00, Type hxy, Type h11, int x, int z,
@@ -63,6 +64,7 @@ private:
 
 private:
 	bool IsValidCoord(glm::ivec2 coord) const;
+	bool IsValidCell(glm::ivec2 coord) const;
 	glm::ivec2 ClampCoord(glm::ivec2 coord) const;
 	template <bool SAFE> size_t Id(glm::ivec2 coord) const;
 };
