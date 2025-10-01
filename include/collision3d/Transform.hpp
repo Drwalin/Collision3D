@@ -47,7 +47,7 @@ struct Transform {
 	inline RayInfo ToLocal(const RayInfo &ray) const
 	{
 		RayInfo r2 = ray;
-		r2.start = ray.start - pos;
+		r2.start = rot.ToLocal(ray.start - pos);
 		r2.dir = rot.ToLocal(ray.dir);
 		r2.dirNormalized = rot.ToLocal(ray.dirNormalized);
 
@@ -61,6 +61,10 @@ struct Transform {
 		r2.signs[2] = r2.invDir[2] < 0.0 ? 1 : 0;
 
 		r2.end = r2.start + r2.dir;
+		
+		
+		
+		
 
 		return r2;
 	}

@@ -16,7 +16,6 @@ spp::Aabb VertBox::GetAabb(const Transform &trans) const
 	}
 
 	glm::vec3 min = trans.pos, max = trans.pos;
-	min.y = trans.pos.y;
 	max.y += halfExtents.y * 2.0f;
 
 	const glm::vec2 x = rot * glm::vec2{halfExtents.x, 0};
@@ -89,7 +88,7 @@ static inline bool FastRayTest2(const glm::vec3 min, const glm::vec3 max,
 	if (near > far)
 		return false;
 
-	if (near < 0.0f) {
+	if (near <= 0.0f) {
 		normal = -ray.dirNormalized;
 		near = 0.0f;
 	} else {
@@ -115,7 +114,12 @@ bool VertBox::RayTest(const Transform &trans, const RayInfo &ray, float &near,
 bool VertBox::RayTestLocal(const RayInfo &ray, float &near,
 						   glm::vec3 &normal) const
 {
-	return FastRayTest2(-halfExtents, halfExtents, ray, near, normal);
+	glm::vec3 he = halfExtents;
+	glm::vec3 min = -he;
+	glm::vec3 max = he;
+	min.y += halfExtents.y;
+	max.y += halfExtents.y;
+	return FastRayTest2(min, max, ray, near, normal);
 }
 
 bool VertBox::CylinderTestOnGround(const Transform &trans, const Cylinder &cyl,
@@ -148,6 +152,8 @@ bool VertBox::CylinderTestMovement(const Transform &trans,
 	glm::vec3 he = halfExtents;
 	glm::vec3 min = -he;
 	glm::vec3 max = he;
+	min.y += halfExtents.y;
+	max.y += halfExtents.y;
 	min.y -= cyl.height;
 	if (FastRayTest2(min, max, movementRayLocal, validMovementFactor, normal)) {
 		if (validMovementFactor > 1.0f) {
