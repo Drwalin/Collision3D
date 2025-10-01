@@ -49,7 +49,7 @@ CLASS::CLASS(SHAPE &&NAME, Transform trans) \
 
 #define CODE_RAY_TEST(SHAPE, NAME, INDEX, DEREF)                               \
 	if (NAME DEREF RayTest(trans * this->trans, ray, near, normal)) {          \
-		normal = (trans * this->trans) * normal;                               \
+		normal = (trans.rot + this->trans.rot) * normal;                       \
 		return true;                                                           \
 	} else {                                                                   \
 		return false;                                                          \
