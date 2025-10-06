@@ -21,31 +21,48 @@ static bool cylinderIntersect(const RayInfo &ray, glm::vec3 pos, float height,
 	glm::vec3 ba = {0, height, 0};
 	glm::vec3 oc = ray.start - pos;
 	float baba = glm::dot(ba, ba);
-	float bard = glm::dot(ba, ray.dir);
+	float bard = glm::dot(ba, ray.dirNormalized);
 	float baoc = glm::dot(ba, oc);
 	float k2 = baba - bard * bard;
-	float k1 = baba * glm::dot(oc, ray.dir) - baoc * bard;
+	float k1 = baba * glm::dot(oc, ray.dirNormalized) - baoc * bard;
 	float k0 = baba * glm::dot(oc, oc) - baoc * baoc - radius * radius * baba;
 	float h = k1 * k1 - k2 * k0;
 	if (h < 0.0)
 		return false;
 	h = sqrt(h);
 	float t = (-k1 - h) / k2;
+	float t2 = (-k1 + h) / k2;
+	
+	if (t < 0 && t2 > 0) { // is probably inside
+		assert(glm::distance(glm::vec2{pos.x, pos.z}, {ray.start.x, ray.start.z}) <= radius * 1.01);
+		if (ray.start.y >= 0 && ray.start.y <= height) {
+			normal = -ray.dirNormalized;
+			near = 0;
+			return true;
+		}
+	}
 
 	// body
 	float y = baoc + t * bard;
 	if (y > 0.0 && y < baba) {
 		normal = (oc + t * ray.dir - ba * y / baba) / radius;
+		t /= ray.length;
 		near = t;
-		return true;
+		if (t <= 1.0f && t >= 0) {
+			return true;
+		}
+		return false;
 	}
 
 	// caps
 	t = (((y < 0.0) ? 0.0 : baba) - baoc) / bard;
 	if (glm::abs(k1 + k2 * t) < h) {
 		normal = ba * glm::sign(y) / (float)sqrt(baba);
+		t /= ray.length;
 		near = t;
-		return true;
+		if (t <= 1.0f) {
+			return true;
+		}
 	}
 	return false;
 }
@@ -64,13 +81,17 @@ bool Cylinder::RayTestLocal(const RayInfo &ray, float &near,
 }
 
 bool Cylinder::CylinderTestOnGround(const Transform &trans, const Cylinder &cyl,
-									glm::vec3 pos, float &offsetHeight) const
+									glm::vec3 pos, float &offsetHeight,
+									glm::vec3 *onGroundNormal) const
 {
 	float r2 = radius + cyl.radius;
 	r2 = r2 * r2;
 	glm::vec2 diff = {pos.x - trans.pos.x, pos.z - trans.pos.z};
 	if (r2 >= glm::length2(diff)) {
 		CylinderTestOnGroundAssumeCollision2D(trans, cyl, pos, offsetHeight);
+		if (onGroundNormal) {
+			*onGroundNormal = {0,1,0};
+		}
 		return true;
 	}
 	return false;

@@ -34,7 +34,8 @@ bool TestPlaneIterational(glm::vec3 normal, float d, const RayInfo &ray,
 							  const RayInfo &movementRay, glm::vec3 &normal)   \
 		const;                                                                 \
 	bool CylinderTestOnGround(const Transform &trans, const Cylinder &cyl,     \
-							  glm::vec3 pos, float &offsetHeight) const;
+							  glm::vec3 pos, float &offsetHeight,              \
+							  glm::vec3 *onGroundNormal) const;
 
 #define CYLINDER_TEST_ON_GROUND_ASSUME_COLLISION2D()                           \
 	void CylinderTestOnGroundAssumeCollision2D(                                \

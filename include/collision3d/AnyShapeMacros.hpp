@@ -56,7 +56,7 @@ CLASS::CLASS(SHAPE &&NAME, Transform trans) \
 	}
 
 #define CODE_CYLINDER_TEST_ON_GROUND(SHAPE, NAME, INDEX, DEREF) \
-		return NAME DEREF CylinderTestOnGround(trans * this->trans, cyl, pos, offsetHeight);
+		return NAME DEREF CylinderTestOnGround(trans * this->trans, cyl, pos, offsetHeight, onGroundNormal);
 
 #define CODE_CYLINDER_TEST_MOVEMENT(SHAPE, NAME, INDEX, DEREF) \
 		return NAME DEREF CylinderTestMovement(trans * this->trans, validMovementFactor, cyl, movementRay, normal);

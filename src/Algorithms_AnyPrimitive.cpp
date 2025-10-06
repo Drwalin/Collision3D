@@ -40,7 +40,8 @@ bool AnyPrimitive::RayTestLocal(const RayInfo &ray, float &near,
 
 bool AnyPrimitive::CylinderTestOnGround(const Transform &trans,
 										const Cylinder &cyl, glm::vec3 pos,
-										float &offsetHeight) const
+										float &offsetHeight,
+										glm::vec3 *onGroundNormal) const
 {
 	switch (type) {
 	case INVALID:

@@ -47,7 +47,8 @@ bool Sphere::RayTestLocal(const RayInfo &ray, float &near,
 }
 
 bool Sphere::CylinderTestOnGround(const Transform &trans, const Cylinder &cyl,
-								  glm::vec3 pos, float &offsetHeight) const
+								  glm::vec3 pos, float &offsetHeight,
+								  glm::vec3 *onGroundNormal) const
 {
 	assert(!"Uniiimplemented!");
 	return false;

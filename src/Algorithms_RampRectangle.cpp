@@ -78,7 +78,8 @@ bool RampRectangle::RayTestLocal(const RayInfo &ray, float &near,
 
 bool RampRectangle::CylinderTestOnGround(const Transform &trans,
 										 const Cylinder &cyl, glm::vec3 pos,
-										 float &offsetHeight) const
+										 float &offsetHeight,
+										 glm::vec3 *onGroundNormal) const
 {
 	if (fabs(height) > depth) {
 		return false;
@@ -100,6 +101,11 @@ bool RampRectangle::CylinderTestOnGround(const Transform &trans,
 
 	const float y = ((height + halfThickness) * localPos.z) / depth;
 	offsetHeight = localPos.y - y;
+	
+	if (onGroundNormal) {
+		*onGroundNormal = glm::normalize(glm::vec3(0, depth, -height));
+	}
+	
 	return true;
 }
 

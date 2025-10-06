@@ -365,9 +365,21 @@ bool HeightMap_Header::TriangleRayTest(Type h00, Type hxy, Type h11, int x,
 	return true;
 }
 
+/*
+ *       X
+ *  ---------->
+ *
+ *  a01 ... a11   ^
+ *   .     . .    |
+ *   .   .   .    | Z
+ *   . .     .    |
+ *  a00 ... a10   |
+ *
+ */
 bool HeightMap_Header::CylinderTestOnGround(const Transform &trans,
 											const Cylinder &cyl, glm::vec3 pos,
-											float &offsetHeight) const
+											float &offsetHeight,
+											glm::vec3 *onGroundNormal) const
 {
 	pos = trans.ToLocal(pos) * invScale;
 	int x = pos.x;
@@ -401,6 +413,13 @@ bool HeightMap_Header::CylinderTestOnGround(const Transform &trans,
 		float h = hy * (1.0f - f) + hdiag * f;
 
 		offsetHeight = trans.pos.y - h;
+
+		if (onGroundNormal) {
+			glm::vec3 a{0,       a01 - a00, scale.z};
+			glm::vec3 b{scale.x, a11 - a01, 0};
+			*onGroundNormal = glm::normalize(glm::cross(a, b));
+		}
+
 		return true;
 	} else { // lower triangle
 		float a10 = heights[id + 1];
@@ -411,6 +430,11 @@ bool HeightMap_Header::CylinderTestOnGround(const Transform &trans,
 
 		if (fracx == 0.0f) {
 			offsetHeight = trans.pos.y - a00;
+			if (onGroundNormal) {
+				glm::vec3 a{0,       a11 - a10, scale.z};
+				glm::vec3 b{scale.x, a10 - a00, 0};
+				*onGroundNormal = glm::normalize(glm::cross(a, b));
+			}
 			return true;
 		}
 
@@ -420,6 +444,11 @@ bool HeightMap_Header::CylinderTestOnGround(const Transform &trans,
 		float h = hy * f + hdiag * (1.0f - f);
 
 		offsetHeight = trans.pos.y - h;
+		if (onGroundNormal) {
+			glm::vec3 a{0,       a11 - a10, scale.z};
+			glm::vec3 b{scale.x, a10 - a00, 0};
+			*onGroundNormal = glm::normalize(glm::cross(a, b));
+		}
 		return true;
 	}
 }

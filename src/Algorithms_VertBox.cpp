@@ -123,22 +123,47 @@ bool VertBox::RayTestLocal(const RayInfo &ray, float &near,
 }
 
 bool VertBox::CylinderTestOnGround(const Transform &trans, const Cylinder &cyl,
-								   glm::vec3 pos, float &offsetHeight) const
+								   glm::vec3 pos, float &offsetHeight,
+								   glm::vec3 *onGroundNormal) const
 {
+// 	printf("                        Testing cylinder on vertbox: "
+// 			"trans: %.2f %.2f %.2f,       "
+// 			"pos: %.2f %.2f %.2f,         "
+// 			"halfExt: %.2f %.2f %.2f,     "
+// 			"cyl rad: %.2f   height: %.2f "
+// 			"\n",
+// 			trans.pos.x,
+// 			trans.pos.y,
+// 			trans.pos.z,
+// 			pos.x,
+// 			pos.y,
+// 			pos.z,
+// 			halfExtents.x,
+// 			halfExtents.y,
+// 			halfExtents.z,
+// 			cyl.radius, cyl.height
+// 			);
 	pos = trans.ToLocal(pos);
-	if (fabs(pos.x) > halfExtents.x || fabs(pos.z) > halfExtents.y) {
+	if (fabs(pos.x) > halfExtents.x+cyl.radius || fabs(pos.z) > halfExtents.z+cyl.radius) {
+// 		printf("FAILED CYLINDER TEST ON GROUND!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
 		return false;
 	}
 	CylinderTestOnGroundAssumeCollision2D(trans, cyl, pos, offsetHeight);
+	if (onGroundNormal) {
+		*onGroundNormal = glm::vec3{0,1,0};
+	}
 	return true;
 }
 
+// This is in local space coordinates
 void VertBox::CylinderTestOnGroundAssumeCollision2D(const Transform &trans,
 													const Cylinder &cyl,
 													glm::vec3 pos,
 													float &offsetHeight) const
 {
-	offsetHeight = pos.y - trans.pos.y - halfExtents.y * 2.0f;
+// 	printf("VertBox::CylinderTestOnGroundAssumeCollision2D:   pos.y: %f   trans.pos.y: %f    halfExtents.y: %f   (x2.0)\n",
+// 	pos.y+trans.pos.y, trans.pos.y, halfExtents.y);
+	offsetHeight = pos.y - (halfExtents.y * 2.0f);
 }
 
 bool VertBox::CylinderTestMovement(const Transform &trans,
@@ -149,7 +174,7 @@ bool VertBox::CylinderTestMovement(const Transform &trans,
 {
 	RayInfo movementRayLocal = trans.ToLocal(movementRay);
 
-	glm::vec3 he = halfExtents;
+	glm::vec3 he = halfExtents + glm::vec3(cyl.radius, 0, cyl.radius);
 	glm::vec3 min = -he;
 	glm::vec3 max = he;
 	min.y += halfExtents.y;

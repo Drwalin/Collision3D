@@ -110,10 +110,12 @@ bool HeightMap::RayTestLocal(const RayInfo &ray, float &near,
 
 bool HeightMap::CylinderTestOnGround(const Transform &trans,
 									 const Cylinder &cyl, glm::vec3 pos,
-									 float &offsetHeight) const
+									 float &offsetHeight,
+									 glm::vec3 *onGroundNormal) const
 {
 	assert(header);
-	return header->CylinderTestOnGround(trans, cyl, pos, offsetHeight);
+	return header->CylinderTestOnGround(trans, cyl, pos, offsetHeight,
+										onGroundNormal);
 }
 
 bool HeightMap::CylinderTestMovement(const Transform &trans,
