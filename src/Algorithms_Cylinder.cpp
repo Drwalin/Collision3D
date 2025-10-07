@@ -36,8 +36,15 @@ static bool cylinderIntersect(const RayInfo &ray, glm::vec3 pos, float height,
 	if (t < 0 && t2 > 0) { // is probably inside
 		assert(glm::distance(glm::vec2{pos.x, pos.z}, {ray.start.x, ray.start.z}) <= radius * 1.01);
 		if (ray.start.y >= 0 && ray.start.y <= height) {
-			normal = -ray.dirNormalized;
 			near = 0;
+			const glm::vec3 outDir = (ray.start - pos) * glm::vec3(1,0,1);
+			const float outDirLen = glm::length(outDir);
+			if (outDirLen < 0.0000001) {
+				normal = glm::vec3(1,0,0);
+				return true;
+			}
+			
+			normal = outDir / outDirLen;
 			return true;
 		}
 	}

@@ -89,8 +89,18 @@ static inline bool FastRayTest2(const glm::vec3 min, const glm::vec3 max,
 		return false;
 
 	if (near <= 0.0f) {
-		normal = -ray.dirNormalized;
 		near = 0.0f;
+		
+		const glm::vec3 out[2] = {max - ray.start, min - ray.start};
+		const float o[4] = {out[0].x, out[0].z, out[1].x, out[1].z};
+		int id = 0;
+		for (int i=1; i<4; ++i) {
+			if (fabs(o[id]) > fabs(o[i])) {
+				id = i;
+			}
+		}
+		normal = {0,0,0};
+		normal[(id%2)*2] = (id/2) ? -1 : 1;
 	} else {
 		normal = {0, 0, 0};
 		normal[normalAxis] = ray.signs[normalAxis] ? 1 : -1;

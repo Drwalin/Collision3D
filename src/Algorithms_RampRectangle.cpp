@@ -54,8 +54,24 @@ bool RampRectangle::RayTestLocal(const RayInfo &ray, float &near,
 			return false;
 		}
 	}
-
-	if (near >= 0.0f) {
+	
+	if (near <= 0.0f) {
+		/* is inside*/
+		near = 0.0f;
+		normal = -ray.dirNormalized;
+		/* find shortest way outside */
+		float d = glm::dot(ray.start, n[0]) - offs[0];
+		assert(d >= 0.0f);
+		for (int i=1; i<6; ++i) {
+			const float d2 = glm::dot(ray.start, n[i]) - offs[i];
+			assert(d2 >= 0.0f);
+			if (d > d2) {
+				d = d2;
+				normal = n[i];
+			}
+		}
+		return true;
+	} else if (near >= 0.0f) {
 		/* outside, hitting front face */
 		if (near <= 1.0f) {
 			normal = n[frontNormalId];
