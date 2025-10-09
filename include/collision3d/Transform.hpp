@@ -62,10 +62,6 @@ struct Transform {
 
 		r2.end = r2.start + r2.dir;
 		
-		
-		
-		
-
 		return r2;
 	}
 };

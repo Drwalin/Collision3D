@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <vector>
+#include "../../SpatialPartitioning/include/spatial_partitioning/TypedArray.hpp"
 
 #include "ForwardDeclarations.hpp"
 #include "CollisionAlgorithms.hpp"
@@ -33,7 +33,8 @@ struct AnyPrimitive {
 					   EMPTY_CODE)
 	};
 
-	Transform trans;
+	glm::vec3 pos;
+	Rotation rot;
 
 	enum Type : uint8_t {
 		INVALID = 0,
@@ -56,7 +57,7 @@ struct AnyPrimitive {
 };
 
 struct CompoundPrimitive {
-	std::vector<AnyPrimitive> primitives;
+	spp::Array<AnyPrimitive, uint32_t, true, false> primitives;
 
 	CompoundPrimitive() = default;
 
@@ -76,7 +77,8 @@ struct AnyShape {
 		EACH_SHAPE(AnyShape, DECLARATION_UNION_ANY_PRIMITIVE, EMPTY_CODE)
 	};
 
-	Transform trans;
+	glm::vec3 pos;
+	Rotation rot;
 
 	enum Type : uint8_t {
 		INVALID = 0,

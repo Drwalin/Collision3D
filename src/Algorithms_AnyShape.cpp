@@ -16,8 +16,9 @@ AnyShape::AnyShape() { type = INVALID; }
 
 AnyShape::AnyShape(AnyShape &other)
 {
-	this->type = other.type;
-	this->trans = other.trans;
+	type = other.type;
+	pos = other.pos;
+	rot = other.rot;
 	switch (other.type) {
 	case INVALID:
 		break;
@@ -29,8 +30,9 @@ AnyShape::AnyShape(AnyShape &other)
 
 AnyShape::AnyShape(AnyShape &&other)
 {
-	this->type = other.type;
-	this->trans = other.trans;
+	type = other.type;
+	pos = other.pos;
+	rot = other.rot;
 	switch (other.type) {
 	case INVALID:
 		break;
@@ -43,8 +45,9 @@ AnyShape::AnyShape(AnyShape &&other)
 
 AnyShape::AnyShape(const AnyShape &other)
 {
-	this->type = other.type;
-	this->trans = other.trans;
+	type = other.type;
+	pos = other.pos;
+	rot = other.rot;
 	switch (other.type) {
 	case INVALID:
 		break;
@@ -146,7 +149,8 @@ bool AnyShape::CylinderTestMovement(const Transform &trans,
 	NAME = other.NAME;
 AnyShape::AnyShape(AnyPrimitive &other)
 {
-	trans = other.trans;
+	pos = other.pos;
+	rot = other.rot;
 	switch (other.type) {
 	case AnyPrimitive::INVALID:
 		break;
@@ -161,7 +165,8 @@ AnyShape::AnyShape(AnyPrimitive &other)
 	NAME = std::move(other.NAME);
 AnyShape::AnyShape(const AnyPrimitive &other)
 {
-	trans = other.trans;
+	pos = other.pos;
+	rot = other.rot;
 	switch (other.type) {
 	case AnyPrimitive::INVALID:
 		break;
@@ -173,7 +178,8 @@ AnyShape::AnyShape(const AnyPrimitive &other)
 
 AnyShape::AnyShape(AnyPrimitive &&other)
 {
-	trans = other.trans;
+	pos = other.pos;
+	rot = other.rot;
 	switch (other.type) {
 	case AnyPrimitive::INVALID:
 		break;
@@ -189,7 +195,8 @@ AnyShape::AnyShape(AnyPrimitive &&other)
 AnyShape &AnyShape::operator=(AnyPrimitive &other)
 {
 	this->~AnyShape();
-	trans = other.trans;
+	pos = other.pos;
+	rot = other.rot;
 	switch (other.type) {
 	case AnyPrimitive::INVALID:
 		break;
@@ -206,7 +213,8 @@ AnyShape &AnyShape::operator=(AnyPrimitive &other)
 AnyShape &AnyShape::operator=(const AnyPrimitive &other)
 {
 	this->~AnyShape();
-	trans = other.trans;
+	pos = other.pos;
+	rot = other.rot;
 	switch (other.type) {
 	case AnyPrimitive::INVALID:
 		break;
@@ -220,7 +228,8 @@ AnyShape &AnyShape::operator=(const AnyPrimitive &other)
 AnyShape &AnyShape::operator=(AnyPrimitive &&other)
 {
 	this->~AnyShape();
-	trans = other.trans;
+	pos = other.pos;
+	rot = other.rot;
 	switch (other.type) {
 	case AnyPrimitive::INVALID:
 		break;
