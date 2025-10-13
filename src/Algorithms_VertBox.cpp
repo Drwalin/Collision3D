@@ -171,9 +171,9 @@ void VertBox::CylinderTestOnGroundAssumeCollision2D(const Transform &trans,
 													glm::vec3 pos,
 													float &offsetHeight) const
 {
-// 	printf("VertBox::CylinderTestOnGroundAssumeCollision2D:   pos.y: %f   trans.pos.y: %f    halfExtents.y: %f   (x2.0)\n",
-// 	pos.y+trans.pos.y, trans.pos.y, halfExtents.y);
 	offsetHeight = pos.y - (halfExtents.y * 2.0f);
+// 	printf("VertBox::CylinderTestOnGroundAssumeCollision2D:   pos.y: %f   trans.pos.y: %f    halfExtents.y: %f   (x2.0)       offsetHeight: %.3f\n",
+// 	pos.y+trans.pos.y, trans.pos.y, halfExtents.y, offsetHeight);
 }
 
 bool VertBox::CylinderTestMovement(const Transform &trans,

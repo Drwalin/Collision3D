@@ -31,8 +31,8 @@ CLASS::CLASS(SHAPE &&NAME, Transform trans) \
 	{                                                                          \
 		this->~CLASS();                                                        \
 		new (this) CLASS(std::move(NAME));                                     \
-		pos = {};                                                              \
-		rot = {};                                                              \
+		this->pos = {};                                                              \
+		this->rot = {};                                                              \
 		return *this;                                                          \
 	}
 
@@ -46,21 +46,21 @@ CLASS::CLASS(SHAPE &&NAME, Transform trans) \
 	NAME.~SHAPE();
 
 #define CODE_GET_AABB(SHAPE, NAME, INDEX, DEREF) \
-		return NAME DEREF GetAabb(trans * Transform{pos, rot});
+		return NAME DEREF GetAabb(trans * Transform{this->pos, this->rot});
 
 #define CODE_RAY_TEST(SHAPE, NAME, INDEX, DEREF)                               \
-	if (NAME DEREF RayTest(trans * Transform{pos, rot}, ray, near, normal)) {  \
-		normal = (trans.rot + rot) * normal;                                   \
+	if (NAME DEREF RayTest(trans * Transform{this->pos, this->rot}, ray, near, normal)) {  \
+		normal = (trans.rot + this->rot) * normal;                                   \
 		return true;                                                           \
 	} else {                                                                   \
 		return false;                                                          \
 	}
 
 #define CODE_CYLINDER_TEST_ON_GROUND(SHAPE, NAME, INDEX, DEREF) \
-		return NAME DEREF CylinderTestOnGround(trans * Transform{pos, rot}, cyl, pos, offsetHeight, onGroundNormal);
+		return NAME DEREF CylinderTestOnGround(trans * Transform{this->pos, this->rot}, cyl, pos, offsetHeight, onGroundNormal);
 
 #define CODE_CYLINDER_TEST_MOVEMENT(SHAPE, NAME, INDEX, DEREF) \
-		return NAME DEREF CylinderTestMovement(trans * Transform{pos, rot}, validMovementFactor, cyl, movementRay, normal);
+		return NAME DEREF CylinderTestMovement(trans * Transform{this->pos, this->rot}, validMovementFactor, cyl, movementRay, normal);
 
 #define EACH_SHAPE(CLASS, MACRO, CODE)                                         \
 	EACH_PRIMITIVE(CLASS, MACRO, CODE)                                         \

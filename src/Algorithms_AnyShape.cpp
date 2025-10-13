@@ -60,8 +60,9 @@ AnyShape::AnyShape(const AnyShape &other)
 AnyShape::~AnyShape()
 {
 	switch (type) {
+	case INVALID:
+		break;
 		EACH_SHAPE(AnyShape, SWITCH_CASES, SIMPLE_CODE_CALL_DESTRUCTOR);
-	default:
 	}
 	type = INVALID;
 }
@@ -156,7 +157,6 @@ AnyShape::AnyShape(AnyPrimitive &other)
 		break;
 		EACH_PRIMITIVE(AnyPrimitive, SWITCH_CASES,
 					   CODE_COPY_FROM_ANY_PRIMITIVE);
-	default:
 	}
 }
 
@@ -172,7 +172,6 @@ AnyShape::AnyShape(const AnyPrimitive &other)
 		break;
 		EACH_PRIMITIVE(AnyPrimitive, SWITCH_CASES,
 					   CODE_MOVE_FROM_ANY_PRIMITIVE);
-	default:
 	}
 }
 
@@ -185,7 +184,6 @@ AnyShape::AnyShape(AnyPrimitive &&other)
 		break;
 		EACH_PRIMITIVE(AnyPrimitive, SWITCH_CASES,
 					   CODE_MOVE_FROM_ANY_PRIMITIVE);
-	default:
 	}
 }
 
@@ -202,7 +200,6 @@ AnyShape &AnyShape::operator=(AnyPrimitive &other)
 		break;
 		EACH_PRIMITIVE(AnyPrimitive, SWITCH_CASES,
 					   CODE_COPY_FROM_ANY_PRIMITIVE);
-	default:
 	}
 	return *this;
 }
@@ -220,7 +217,6 @@ AnyShape &AnyShape::operator=(const AnyPrimitive &other)
 		break;
 		EACH_PRIMITIVE(AnyPrimitive, SWITCH_CASES,
 					   CODE_MOVE_FROM_ANY_PRIMITIVE);
-	default:
 	}
 	return *this;
 }
@@ -235,7 +231,6 @@ AnyShape &AnyShape::operator=(AnyPrimitive &&other)
 		break;
 		EACH_PRIMITIVE(AnyPrimitive, SWITCH_CASES,
 					   CODE_MOVE_FROM_ANY_PRIMITIVE);
-	default:
 	}
 	return *this;
 }
