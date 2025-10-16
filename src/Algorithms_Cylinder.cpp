@@ -89,15 +89,24 @@ bool Cylinder::RayTestLocal(const RayInfo &ray, float &near,
 
 bool Cylinder::CylinderTestOnGround(const Transform &trans, const Cylinder &cyl,
 									glm::vec3 pos, float &offsetHeight,
-									glm::vec3 *onGroundNormal) const
+									glm::vec3 *onGroundNormal,
+									bool *isOnEdge) const
 {
 	float r2 = radius + cyl.radius;
-	r2 = r2 * r2;
+	float r2e = r2 + ON_EDGE_FACTOR;
+	r2e *= r2e;
+	r2 *= r2;
 	glm::vec2 diff = {pos.x - trans.pos.x, pos.z - trans.pos.z};
-	if (r2 >= glm::length2(diff)) {
+	float len2 = glm::length2(diff);
+	if (r2e >= len2) {
 		CylinderTestOnGroundAssumeCollision2D(trans, cyl, pos, offsetHeight);
 		if (onGroundNormal) {
 			*onGroundNormal = {0,1,0};
+		}
+		if (r2 < len2) {
+			if (isOnEdge) {
+				*isOnEdge = true;
+			}
 		}
 		return true;
 	}

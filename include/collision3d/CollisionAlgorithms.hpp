@@ -21,6 +21,8 @@ struct Cylinder;
 bool TestPlaneIterational(glm::vec3 normal, float d, const RayInfo &ray,
 						  float &near, float &far, int &frontNormal,
 						  int &backNormal, int id);
+
+constexpr inline float ON_EDGE_FACTOR = 0.03f;
 } // namespace Collision3D
 
 #define COLLISION_SHAPE_METHODS_DECLARATION()                                  \
@@ -35,7 +37,7 @@ bool TestPlaneIterational(glm::vec3 normal, float d, const RayInfo &ray,
 		const;                                                                 \
 	bool CylinderTestOnGround(const Transform &trans, const Cylinder &cyl,     \
 							  glm::vec3 pos, float &offsetHeight,              \
-							  glm::vec3 *onGroundNormal) const;
+							  glm::vec3 *onGroundNormal, bool *isOnEdge) const;
 
 #define CYLINDER_TEST_ON_GROUND_ASSUME_COLLISION2D()                           \
 	void CylinderTestOnGroundAssumeCollision2D(                                \

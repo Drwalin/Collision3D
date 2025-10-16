@@ -134,7 +134,8 @@ bool VertBox::RayTestLocal(const RayInfo &ray, float &near,
 
 bool VertBox::CylinderTestOnGround(const Transform &trans, const Cylinder &cyl,
 								   glm::vec3 pos, float &offsetHeight,
-								   glm::vec3 *onGroundNormal) const
+								   glm::vec3 *onGroundNormal,
+								   bool *isOnEdge) const
 {
 // 	printf("                        Testing cylinder on vertbox: "
 // 			"trans: %.2f %.2f %.2f,       "
@@ -154,13 +155,18 @@ bool VertBox::CylinderTestOnGround(const Transform &trans, const Cylinder &cyl,
 // 			cyl.radius, cyl.height
 // 			);
 	pos = trans.ToLocal(pos);
-	if (fabs(pos.x) > halfExtents.x+cyl.radius || fabs(pos.z) > halfExtents.z+cyl.radius) {
+	if (fabs(pos.x) > halfExtents.x+cyl.radius+ON_EDGE_FACTOR || fabs(pos.z) > halfExtents.z+cyl.radius+ON_EDGE_FACTOR) {
 // 		printf("FAILED CYLINDER TEST ON GROUND!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
 		return false;
 	}
 	CylinderTestOnGroundAssumeCollision2D(trans, cyl, pos, offsetHeight);
 	if (onGroundNormal) {
 		*onGroundNormal = glm::vec3{0,1,0};
+	}
+	if (isOnEdge) {
+		if (fabs(pos.x) > halfExtents.x+cyl.radius || fabs(pos.z) > halfExtents.z+cyl.radius) {
+			*isOnEdge = true;
+		}
 	}
 	return true;
 }

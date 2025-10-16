@@ -379,7 +379,8 @@ bool HeightMap_Header::TriangleRayTest(Type h00, Type hxy, Type h11, int x,
 bool HeightMap_Header::CylinderTestOnGround(const Transform &trans,
 											const Cylinder &cyl, glm::vec3 pos,
 											float &offsetHeight,
-											glm::vec3 *onGroundNormal) const
+											glm::vec3 *onGroundNormal,
+											bool *isOnEdge) const
 {
 	pos = trans.ToLocal(pos) * invScale;
 	int x = pos.x;

@@ -54,7 +54,7 @@ bool RampRectangle::RayTestLocal(const RayInfo &ray, float &near,
 			return false;
 		}
 	}
-	
+
 	if (near <= 0.0f) {
 		/* is inside*/
 		near = 0.0f;
@@ -62,7 +62,7 @@ bool RampRectangle::RayTestLocal(const RayInfo &ray, float &near,
 		/* find shortest way outside */
 		float d = glm::dot(ray.start, n[0]) - offs[0];
 		assert(d >= 0.0f);
-		for (int i=1; i<6; ++i) {
+		for (int i = 1; i < 6; ++i) {
 			const float d2 = glm::dot(ray.start, n[i]) - offs[i];
 			assert(d2 >= 0.0f);
 			if (d > d2) {
@@ -95,7 +95,8 @@ bool RampRectangle::RayTestLocal(const RayInfo &ray, float &near,
 bool RampRectangle::CylinderTestOnGround(const Transform &trans,
 										 const Cylinder &cyl, glm::vec3 pos,
 										 float &offsetHeight,
-										 glm::vec3 *onGroundNormal) const
+										 glm::vec3 *onGroundNormal,
+										 bool *isOnEdge) const
 {
 	if (fabs(height) > depth) {
 		return false;
@@ -103,23 +104,36 @@ bool RampRectangle::CylinderTestOnGround(const Transform &trans,
 
 	const glm::vec3 localPos = trans.ToLocal(pos);
 
-	if (fabs(localPos.x) > halfWidth) {
+	if (fabs(localPos.x) > halfWidth+ON_EDGE_FACTOR) {
 		return false;
 	}
 
-	if (localPos.z < 0) {
+	if (localPos.z < -ON_EDGE_FACTOR) {
 		return false;
 	}
 
-	if (localPos.z > depth) {
+	if (localPos.z > depth+ON_EDGE_FACTOR) {
 		return false;
 	}
 
 	const float y = ((height + halfThickness) * localPos.z) / depth;
 	offsetHeight = localPos.y - y;
-	
+
 	if (onGroundNormal) {
 		*onGroundNormal = glm::normalize(glm::vec3(0, depth, -height));
+	}
+	
+	// TODO: CylinderTestOnGround::isOnEdge is not implemented
+
+	
+	if (isOnEdge) {
+		if (fabs(localPos.x) > halfWidth) {
+			*isOnEdge = true;
+		} else if (localPos.z < 0) {
+			*isOnEdge = true;
+		} else if (localPos.z > depth) {
+			*isOnEdge = true;
+		}
 	}
 	
 	return true;

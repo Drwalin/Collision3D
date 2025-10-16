@@ -119,7 +119,8 @@ bool AnyShape::RayTestLocal(const RayInfo &ray, float &near,
 
 bool AnyShape::CylinderTestOnGround(const Transform &trans, const Cylinder &cyl,
 									glm::vec3 pos, float &offsetHeight,
-									glm::vec3 *onGroundNormal) const
+									glm::vec3 *onGroundNormal,
+									bool *isOnEdge) const
 {
 	switch (type) {
 	case INVALID:

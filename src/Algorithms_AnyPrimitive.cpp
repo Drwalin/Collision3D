@@ -41,12 +41,14 @@ bool AnyPrimitive::RayTestLocal(const RayInfo &ray, float &near,
 bool AnyPrimitive::CylinderTestOnGround(const Transform &trans,
 										const Cylinder &cyl, glm::vec3 pos,
 										float &offsetHeight,
-										glm::vec3 *onGroundNormal) const
+										glm::vec3 *onGroundNormal,
+										bool *isOnEdge) const
 {
 	switch (type) {
 	case INVALID:
 		return false;
-		EACH_PRIMITIVE(AnyPrimitive, SWITCH_CASES, CODE_CYLINDER_TEST_ON_GROUND);
+		EACH_PRIMITIVE(AnyPrimitive, SWITCH_CASES,
+					   CODE_CYLINDER_TEST_ON_GROUND);
 	default:
 		return false;
 	}

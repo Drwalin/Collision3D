@@ -52,12 +52,14 @@ bool CompoundPrimitive::RayTestLocal(const RayInfo &ray, float &near,
 bool CompoundPrimitive::CylinderTestOnGround(const Transform &trans,
 											 const Cylinder &cyl, glm::vec3 pos,
 											 float &offsetHeight,
-											 glm::vec3 *onGroundNormal) const
+											 glm::vec3 *onGroundNormal,
+											 bool *isOnEdge) const
 {
 	bool res = false;
 	float ofh;
 	for (const auto &s : primitives) {
-		if (s.CylinderTestOnGround(trans, cyl, pos, ofh, onGroundNormal)) {
+		if (s.CylinderTestOnGround(trans, cyl, pos, ofh, onGroundNormal,
+								   isOnEdge)) {
 			if (res) {
 				if (offsetHeight < ofh) {
 					offsetHeight = ofh;
