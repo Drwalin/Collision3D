@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "CollisionAlgorithms.hpp"
+#include "./CollisionAlgorithms.hpp"
 
 namespace Collision3D
 {
@@ -36,12 +36,12 @@ struct Sphere {
 	COLLISION_SHAPE_METHODS_DECLARATION()
 };
 
-// Origin at center of first horizontal edge (-x, +x), and extends
+// Origin at center and extends
 struct RampRectangle {
-	float halfWidth;	 // expands (-x/2 ; +x/2)
-	float height;		 // expands +y
-	float depth;		 // expands +z
-	float halfThickness; // thickens symmetrically y
+	float halfWidth;			// expands (-x/2 ; +x/2)
+	float halfHeightSkewness;	// expands (-y/2 ; +y/2)
+	float halfDepth;			// expands (-z/2 ; +z/2)
+	float halfThickness;		// thickens symmetrically y
 
 	COLLISION_SHAPE_METHODS_DECLARATION()
 };

@@ -10,16 +10,10 @@ using namespace spp;
 
 spp::Aabb RampRectangle::GetAabb(const Transform &trans) const
 {
-	glm::vec2 a = trans.rot * glm::vec2{-halfWidth, 0};
-	glm::vec2 b = trans.rot * glm::vec2{+halfWidth, depth};
-
-	float c = 0.0f, d = height;
-	if (d < c)
-		std::swap(c, d);
-
-	glm::vec3 min = trans.pos - glm::vec3{a.x, c - halfThickness, a.y};
-	glm::vec3 max = trans.pos + glm::vec3{b.x, d + halfThickness, b.y};
-	return {min, max};
+	const float h = fabs(halfHeightSkewness) + halfThickness;
+	Transform t = trans;
+	t.pos.y -= h;
+	return VertBox{{halfWidth, h, halfDepth}}.GetAabb(t);
 }
 
 bool RampRectangle::RayTest(const Transform &trans, const RayInfo &ray,
@@ -36,13 +30,14 @@ bool RampRectangle::RayTest(const Transform &trans, const RayInfo &ray,
 bool RampRectangle::RayTestLocal(const RayInfo &ray, float &near,
 								 glm::vec3 &normal) const
 {
-	const glm::vec3 non = glm::normalize(glm::vec3{0, depth, -height});
-	const float nl = glm::length(non);
-	const glm::vec3 no = non / nl;
-	const glm::vec3 n[6] = {{0, 0, -1}, {1, 0, 0}, {0, 0, 1},
+	const glm::vec3 non{0, halfDepth, -halfHeightSkewness};
+	// const float nl = glm::length(non);
+	const glm::vec3 no = non; // / nl;
+	const glm::vec3 n[6] = {{0, 0, -1}, {0, 0, 1}, {1, 0, 0},
 							{-1, 0, 0}, no,		   -no};
 	const float ofn = halfThickness * no.y;
-	const float offs[6] = {0, halfWidth, depth, halfWidth, ofn, ofn};
+	const float offs[6] = {halfDepth, halfDepth, halfWidth,
+						   halfWidth, ofn,		 ofn};
 	int frontNormalId = -1, backNormalId = -1;
 
 	near = -1e9f;
@@ -55,16 +50,24 @@ bool RampRectangle::RayTestLocal(const RayInfo &ray, float &near,
 		}
 	}
 
+	if (far < 0.0f) {
+		return false;
+	}
+
+	if (far < near) {
+		return false;
+	}
+
 	if (near <= 0.0f) {
 		/* is inside*/
 		near = 0.0f;
 		normal = -ray.dirNormalized;
 		/* find shortest way outside */
 		float d = glm::dot(ray.start, n[0]) - offs[0];
-		assert(d >= 0.0f);
+		assert(d <= 0.0f);
 		for (int i = 1; i < 6; ++i) {
 			const float d2 = glm::dot(ray.start, n[i]) - offs[i];
-			assert(d2 >= 0.0f);
+			assert(d2 <= 0.0f);
 			if (d > d2) {
 				d = d2;
 				normal = n[i];
@@ -98,44 +101,38 @@ bool RampRectangle::CylinderTestOnGround(const Transform &trans,
 										 glm::vec3 *onGroundNormal,
 										 bool *isOnEdge) const
 {
-	if (fabs(height) > depth) {
+	if (fabs(halfHeightSkewness) > halfDepth) {
 		return false;
 	}
 
 	const glm::vec3 localPos = trans.ToLocal(pos);
 
-	if (fabs(localPos.x) > halfWidth+ON_EDGE_FACTOR) {
+	if (fabs(localPos.x) > halfWidth + cyl.radius + ON_EDGE_FACTOR) {
 		return false;
 	}
 
-	if (localPos.z < -ON_EDGE_FACTOR) {
+	if (fabs(localPos.z) > halfDepth + ON_EDGE_FACTOR) {
 		return false;
 	}
 
-	if (localPos.z > depth+ON_EDGE_FACTOR) {
-		return false;
-	}
-
-	const float y = ((height + halfThickness) * localPos.z) / depth;
+	const float y =
+		(halfHeightSkewness * localPos.z) / halfDepth + halfThickness;
 	offsetHeight = localPos.y - y;
 
 	if (onGroundNormal) {
-		*onGroundNormal = glm::normalize(glm::vec3(0, depth, -height));
+		*onGroundNormal = glm::vec3(0, halfDepth, -halfHeightSkewness);
 	}
-	
-	// TODO: CylinderTestOnGround::isOnEdge is not implemented
 
-	
 	if (isOnEdge) {
-		if (fabs(localPos.x) > halfWidth) {
+		if (fabs(localPos.x) > halfWidth + cyl.radius) {
 			*isOnEdge = true;
 		} else if (localPos.z < 0) {
 			*isOnEdge = true;
-		} else if (localPos.z > depth) {
+		} else if (localPos.z > halfDepth) {
 			*isOnEdge = true;
 		}
 	}
-	
+
 	return true;
 }
 
@@ -146,9 +143,10 @@ bool RampRectangle::CylinderTestMovement(const Transform &_trans,
 										 glm::vec3 &normal) const
 {
 	const float h2 = cyl.height * 0.5f;
-	RampRectangle tmp{halfWidth, height, depth, halfThickness + h2};
+	RampRectangle tmp{halfWidth + cyl.radius, halfHeightSkewness, halfDepth,
+					  halfThickness + h2};
 	Transform trans = _trans;
-	trans.pos.y += h2;
+	trans.pos.y -= h2;
 	return tmp.RayTest(trans, movementRay, validMovementFactor, normal);
 }
 } // namespace Collision3D

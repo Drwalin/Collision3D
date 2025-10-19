@@ -12,6 +12,7 @@ bool TestPlaneIterational(glm::vec3 normal, float d, const RayInfo &ray,
 {
 	/* Compute intersection point T and sidedness */
 	float vd = glm::dot(ray.dir, normal);
+	/* Compute sidedness */
 	float vn = glm::dot(ray.start, normal) - d;
 	if (vd == 0.0) {
 		/* ray is parallel to plane - check if ray origin is inside plane's
