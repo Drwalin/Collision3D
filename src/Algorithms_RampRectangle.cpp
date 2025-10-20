@@ -2,6 +2,8 @@
 // Copyright (c) 2025 Marek Zalewski aka Drwalin
 // You should have received a copy of the MIT License along with this program.
 
+#include <cstdio>
+
 #include "../include/collision3d/CollisionShapes_Primitives.hpp"
 
 namespace Collision3D
@@ -101,6 +103,8 @@ bool RampRectangle::CylinderTestOnGround(const Transform &trans,
 										 glm::vec3 *onGroundNormal,
 										 bool *isOnEdge) const
 {
+	printf("onground pos.y = %.2f\n", pos.y);
+	
 	if (fabs(halfHeightSkewness) > halfDepth) {
 		return false;
 	}
@@ -126,12 +130,12 @@ bool RampRectangle::CylinderTestOnGround(const Transform &trans,
 	if (isOnEdge) {
 		if (fabs(localPos.x) > halfWidth + cyl.radius) {
 			*isOnEdge = true;
-		} else if (localPos.z < 0) {
-			*isOnEdge = true;
-		} else if (localPos.z > halfDepth) {
+		} else if (fabs(localPos.z) > halfDepth) {
 			*isOnEdge = true;
 		}
 	}
+	
+	printf("              offsetHeight = %.2f\n", offsetHeight);
 
 	return true;
 }
@@ -142,6 +146,7 @@ bool RampRectangle::CylinderTestMovement(const Transform &_trans,
 										 const RayInfo &movementRay,
 										 glm::vec3 &normal) const
 {
+	printf("ray start.y = %.2f\n", movementRay.start.y);
 	const float h2 = cyl.height * 0.5f;
 	RampRectangle tmp{halfWidth + cyl.radius, halfHeightSkewness, halfDepth,
 					  halfThickness + h2};
