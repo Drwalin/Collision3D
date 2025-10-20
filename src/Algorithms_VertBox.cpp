@@ -33,8 +33,7 @@ spp::Aabb VertBox::GetAabb(const Transform &trans) const
 	max.x += min2.x;
 	max.z += min2.y;
 	
-	constexpr float e = 0.0f;
-	return {min-e, max+e};
+	return {min, max};
 }
 
 static inline bool FastRayTest2(const glm::vec3 min, const glm::vec3 max,
