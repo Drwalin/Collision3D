@@ -20,19 +20,19 @@ spp::Aabb VertBox::GetAabb(const Transform &trans) const
 
 	const glm::vec2 x = rot * glm::vec2{halfExtents.x, 0};
 	const glm::vec2 z = rot * glm::vec2{0, halfExtents.z};
-	
+
 	const glm::vec2 a = glm::abs(x + z);
 	const glm::vec2 b = glm::abs(x - z);
-	const glm::vec2 c = glm::abs(- x + z);
-	const glm::vec2 d = glm::abs(- x - z);
-	
+	const glm::vec2 c = glm::abs(-x + z);
+	const glm::vec2 d = glm::abs(-x - z);
+
 	const glm::vec2 min2 = glm::max(a, glm::max(b, glm::max(c, d)));
-	
+
 	min.x -= min2.x;
 	min.z -= min2.y;
 	max.x += min2.x;
 	max.z += min2.y;
-	
+
 	return {min, max};
 }
 
@@ -90,17 +90,17 @@ static inline bool FastRayTest2(const glm::vec3 min, const glm::vec3 max,
 
 	if (near <= 0.0f) {
 		near = 0.0f;
-		
+
 		const glm::vec3 out[2] = {max - ray.start, min - ray.start};
 		const float o[5] = {out[0].x, out[0].z, out[1].x, out[1].z, out[0].y};
 		int id = 0;
-		for (int i=1; i<5; ++i) {
+		for (int i = 1; i < 5; ++i) {
 			if (fabs(o[id]) > fabs(o[i])) {
 				id = i;
 			}
 		}
-		normal = {0,0,0};
-		normal[(id%2)*2] = (id/2) ? -1 : 1;
+		normal = {0, 0, 0};
+		normal[(id % 2) * 2] = (id / 2) ? -1 : 1;
 	} else {
 		normal = {0, 0, 0};
 		normal[normalAxis] = ray.signs[normalAxis] ? 1 : -1;
@@ -137,34 +137,18 @@ bool VertBox::CylinderTestOnGround(const Transform &trans, const Cylinder &cyl,
 								   glm::vec3 *onGroundNormal,
 								   bool *isOnEdge) const
 {
-// 	printf("                        Testing cylinder on vertbox: "
-// 			"trans: %.2f %.2f %.2f,       "
-// 			"pos: %.2f %.2f %.2f,         "
-// 			"halfExt: %.2f %.2f %.2f,     "
-// 			"cyl rad: %.2f   height: %.2f "
-// 			"\n",
-// 			trans.pos.x,
-// 			trans.pos.y,
-// 			trans.pos.z,
-// 			pos.x,
-// 			pos.y,
-// 			pos.z,
-// 			halfExtents.x,
-// 			halfExtents.y,
-// 			halfExtents.z,
-// 			cyl.radius, cyl.height
-// 			);
 	pos = trans.ToLocal(pos);
-	if (fabs(pos.x) > halfExtents.x+cyl.radius+ON_EDGE_FACTOR || fabs(pos.z) > halfExtents.z+cyl.radius+ON_EDGE_FACTOR) {
-// 		printf("FAILED CYLINDER TEST ON GROUND!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+	if (fabs(pos.x) > halfExtents.x + cyl.radius + ON_EDGE_FACTOR ||
+		fabs(pos.z) > halfExtents.z + cyl.radius + ON_EDGE_FACTOR) {
 		return false;
 	}
 	CylinderTestOnGroundAssumeCollision2D(trans, cyl, pos, offsetHeight);
 	if (onGroundNormal) {
-		*onGroundNormal = glm::vec3{0,1,0};
+		*onGroundNormal = glm::vec3{0, 1, 0};
 	}
 	if (isOnEdge) {
-		if (fabs(pos.x) > halfExtents.x+cyl.radius || fabs(pos.z) > halfExtents.z+cyl.radius) {
+		if (fabs(pos.x) > halfExtents.x + cyl.radius ||
+			fabs(pos.z) > halfExtents.z + cyl.radius) {
 			*isOnEdge = true;
 		}
 	}
@@ -178,8 +162,6 @@ void VertBox::CylinderTestOnGroundAssumeCollision2D(const Transform &trans,
 													float &offsetHeight) const
 {
 	offsetHeight = pos.y - (halfExtents.y * 2.0f);
-// 	printf("VertBox::CylinderTestOnGroundAssumeCollision2D:   pos.y: %f   trans.pos.y: %f    halfExtents.y: %f   (x2.0)       offsetHeight: %.3f\n",
-// 	pos.y+trans.pos.y, trans.pos.y, halfExtents.y, offsetHeight);
 }
 
 bool VertBox::CylinderTestMovement(const Transform &trans,
