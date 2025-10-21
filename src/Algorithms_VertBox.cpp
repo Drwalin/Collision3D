@@ -92,9 +92,9 @@ static inline bool FastRayTest2(const glm::vec3 min, const glm::vec3 max,
 		near = 0.0f;
 		
 		const glm::vec3 out[2] = {max - ray.start, min - ray.start};
-		const float o[4] = {out[0].x, out[0].z, out[1].x, out[1].z};
+		const float o[5] = {out[0].x, out[0].z, out[1].x, out[1].z, out[0].y};
 		int id = 0;
-		for (int i=1; i<4; ++i) {
+		for (int i=1; i<5; ++i) {
 			if (fabs(o[id]) > fabs(o[i])) {
 				id = i;
 			}

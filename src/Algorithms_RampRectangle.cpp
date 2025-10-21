@@ -6,6 +6,15 @@
 
 #include "../include/collision3d/CollisionShapes_Primitives.hpp"
 
+extern Collision3D::RampRectangle RAMP_RECT_GLOB;
+extern Collision3D::Transform RAMP_RECT_GLOB_TRANS;
+
+Collision3D::RampRectangle RAMP_RECT_GLOB = {};
+Collision3D::Transform RAMP_RECT_GLOB_TRANS = {};
+
+extern bool DO_PRINT;
+#define printf(...) {if(DO_PRINT){printf(__VA_ARGS__);}}
+
 namespace Collision3D
 {
 using namespace spp;
@@ -15,12 +24,14 @@ spp::Aabb RampRectangle::GetAabb(const Transform &trans) const
 	const float h = fabs(halfHeightSkewness) + halfThickness;
 	Transform t = trans;
 	t.pos.y -= h;
-	return VertBox{{halfWidth, h, halfDepth}}.GetAabb(t);
+	return VertBox{{halfWidth, h, halfDepth}}.GetAabb(trans);
 }
 
 bool RampRectangle::RayTest(const Transform &trans, const RayInfo &ray,
 							float &near, glm::vec3 &normal) const
 {
+	const RayInfo loc = trans.ToLocal(ray);
+	printf("ray start = %7.2f %7.2f %7.2f\n", loc.start.x, loc.start.y, loc.start.z);
 	if (RayTestLocal(trans.ToLocal(ray), near, normal)) {
 		normal = trans.rot * normal;
 		return true;
@@ -33,8 +44,7 @@ bool RampRectangle::RayTestLocal(const RayInfo &ray, float &near,
 								 glm::vec3 &normal) const
 {
 	const glm::vec3 non{0, halfDepth, -halfHeightSkewness};
-	// const float nl = glm::length(non);
-	const glm::vec3 no = non; // / nl;
+	const glm::vec3 no = non;
 	const glm::vec3 n[6] = {{0, 0, -1}, {0, 0, 1}, {1, 0, 0},
 							{-1, 0, 0}, no,		   -no};
 	const float ofn = halfThickness * no.y;
@@ -48,19 +58,22 @@ bool RampRectangle::RayTestLocal(const RayInfo &ray, float &near,
 	for (int i = 0; i < 6; ++i) {
 		if (TestPlaneIterational(n[i], offs[i], ray, near, far, frontNormalId,
 								 backNormalId, i) == false) {
+			printf("ret %i/6\n", i);
 			return false;
 		}
 	}
 
 	if (far < 0.0f) {
+		printf("ret 1");
 		return false;
 	}
 
 	if (far < near) {
+		printf("ret 2");
 		return false;
 	}
 
-	if (near <= 0.0f) {
+	if (near < 0.0f) {
 		/* is inside*/
 		near = 0.0f;
 		normal = -ray.dirNormalized;
@@ -80,8 +93,10 @@ bool RampRectangle::RayTestLocal(const RayInfo &ray, float &near,
 		/* outside, hitting front face */
 		if (near <= 1.0f) {
 			normal = n[frontNormalId];
+			printf("Colliding with normal: %5.2f %5.2f %5.2f\n", normal.x, normal.y, normal.z);
 			return true; // frontface
 		} else {
+			printf("ret 3");
 			return false;
 		}
 	} else {
@@ -92,6 +107,7 @@ bool RampRectangle::RayTestLocal(const RayInfo &ray, float &near,
 			return true; // backface
 		} else {
 			/* inside, but back face beyond tmax */
+			printf("ret 4");
 			return false; // missed
 		}
 	}
@@ -103,7 +119,7 @@ bool RampRectangle::CylinderTestOnGround(const Transform &trans,
 										 glm::vec3 *onGroundNormal,
 										 bool *isOnEdge) const
 {
-	printf("onground pos.y = %.2f\n", pos.y);
+	printf("onground pos = %7.2f %7.2f %7.2f\n", pos.x, pos.y, pos.z);
 	
 	if (fabs(halfHeightSkewness) > halfDepth) {
 		return false;
@@ -146,7 +162,14 @@ bool RampRectangle::CylinderTestMovement(const Transform &_trans,
 										 const RayInfo &movementRay,
 										 glm::vec3 &normal) const
 {
-	printf("ray start.y = %.2f\n", movementRay.start.y);
+	RAMP_RECT_GLOB = *this;
+	RAMP_RECT_GLOB_TRANS = _trans;
+	
+	printf("Ramp:  hw: %5.2f   hhs: %5.2f   hd: %5.2f   ht: %5.2f\n", 
+			halfWidth, halfHeightSkewness, halfDepth, halfThickness);
+			
+// 	return RayTest(_trans, movementRay, validMovementFactor, normal);
+	
 	const float h2 = cyl.height * 0.5f;
 	RampRectangle tmp{halfWidth + cyl.radius, halfHeightSkewness, halfDepth,
 					  halfThickness + h2};

@@ -26,6 +26,7 @@ bool TestPlaneIterational(glm::vec3 normal, float d, const RayInfo &ray,
 		if (vd < 0.0) {
 			/* front face - T is a near point */
 			if (t > far)
+				/* hit outside (after) backface */
 				return false;
 			if (t > near) {
 				/* hit near face, update normal */
@@ -35,6 +36,7 @@ bool TestPlaneIterational(glm::vec3 normal, float d, const RayInfo &ray,
 		} else {
 			/* back face - T is a far point */
 			if (t < near)
+				/* hit outside (before) near face */
 				return false;
 			if (t < far) {
 				/* hit far face, update normal */
