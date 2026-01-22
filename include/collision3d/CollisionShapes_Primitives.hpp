@@ -38,32 +38,30 @@ struct Sphere {
 
 // Origin at center and extends
 struct RampRectangle {
-	float halfWidth;			// expands (-x/2 ; +x/2)
-	float halfHeightSkewness;	// expands (-y/2 ; +y/2)
-	float halfDepth;			// expands (-z/2 ; +z/2)
-	float halfThickness;		// thickens symmetrically y
+	float halfWidth;		  // expands (-x/2 ; +x/2)
+	float halfHeightSkewness; // expands (-y/2 ; +y/2)
+	float halfDepth;		  // expands (-z/2 ; +z/2)
+	float halfThickness;	  // thickens symmetrically y
 
 	COLLISION_SHAPE_METHODS_DECLARATION()
 };
 
-// Origin at center of first horizontal edge (-x, +x)
+// Width is always 2, unless it's used with scale
+// Origin at center of first horizontal edge (-1, +1)
+// Two vertices are always at (-1, 0, 0) and (1, 0, 0)
+// third vertex is at (vert3x, heightSkewness, depth)
 struct RampTriangle {
-	float sideLength;
-	float heightOfVertexOnZ; // height of vertex at (0, Y, +z)
+	glm::vec3 p3;		 // z > 0
+	float halfThickness; // thickens symmetrically y
 
 	COLLISION_SHAPE_METHODS_DECLARATION()
 };
 
+// Infinitelly thin vertical triangle
 // Origin at p0
 // Normal without roatation: z=1
 struct VerticalTriangle {
-	glm::vec2 p1, p2;
-
-	COLLISION_SHAPE_METHODS_DECLARATION()
-};
-
-struct Triangle {
-	glm::vec3 a, b, c;
+	glm::vec2 p1, p2; // {x, y} ; z=0
 
 	COLLISION_SHAPE_METHODS_DECLARATION()
 };

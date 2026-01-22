@@ -5,6 +5,13 @@
 #pragma once
 
 #include "../../SpatialPartitioning/include/spatial_partitioning/TypedArray.hpp"
+#include "../../SpatialPartitioning/include/spatial_partitioning/EntityTypes.hpp"
+
+namespace spp
+{
+SPP_TEMPLATE_DECL_MORE(int, typename)
+class BvhMedianSplitHeap;
+} // namespace spp
 
 #include "ForwardDeclarations.hpp"
 #include "CollisionAlgorithms.hpp"
@@ -58,8 +65,14 @@ struct AnyPrimitive {
 
 struct CompoundPrimitive {
 	spp::Array<AnyPrimitive, uint32_t, true, false> primitives;
+	using BvhType =
+		spp::BvhMedianSplitHeap<spp::Aabb, uint32_t, uint32_t, 0, 1, void>;
+	BvhType *bvh = nullptr;
+
+	void Optimise();
 
 	CompoundPrimitive() = default;
+	~CompoundPrimitive();
 
 	CompoundPrimitive(CompoundPrimitive &other) = default;
 	CompoundPrimitive(CompoundPrimitive &&other) = default;
@@ -97,11 +110,11 @@ struct AnyShape {
 	AnyShape &operator=(AnyShape &other);
 	AnyShape &operator=(AnyShape &&other);
 	AnyShape &operator=(const AnyShape &other);
-	
+
 	AnyShape(AnyPrimitive &other);
 	AnyShape(const AnyPrimitive &other);
 	AnyShape(AnyPrimitive &&other);
-	
+
 	AnyShape &operator=(AnyPrimitive &other);
 	AnyShape &operator=(const AnyPrimitive &other);
 	AnyShape &operator=(AnyPrimitive &&other);

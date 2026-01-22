@@ -113,9 +113,9 @@ bool RampRectangle::CylinderTestOnGround(const Transform &trans,
 	if (fabs(localPos.z) > halfDepth + ON_EDGE_FACTOR) {
 		return false;
 	}
-
-	const float y =
-		(halfHeightSkewness * localPos.z) / halfDepth + halfThickness;
+	
+	const float lpz = glm::clamp(localPos.z, -halfDepth, halfDepth);
+	const float y = (halfHeightSkewness * lpz) / halfDepth + halfThickness;
 	offsetHeight = localPos.y - y;
 
 	if (onGroundNormal) {
